@@ -386,6 +386,128 @@ pub enum DhcpOption {
     // |  25 |  n  |  s1 |  s2 |  s1 |  s2 | ...
     // +-----+-----+-----+-----+-----+-----+---
     PathMtuPlateauTable(Vec<u16>),
+    // Interface MTU Option
+    //
+    // This option specifies the MTU to use on this interface.  The MTU is
+    // specified as a 16-bit unsigned integer.  The minimum legal value for
+    // the MTU is 68.
+    //
+    // The code for this option is 26, and its length is 2.
+    //
+    //  Code   Len      MTU
+    // +-----+-----+-----+-----+
+    // |  26 |  2  |  m1 |  m2 |
+    // +-----+-----+-----+-----+
+    InterfaceMtu(u16),
+    // All Subnets are Local Option
+    //
+    // This option specifies whether or not the client may assume that all
+    // subnets of the IP network to which the client is connected use the
+    // same MTU as the subnet of that network to which the client is
+    // directly connected. A value of 1 indicates that all subnets share
+    // the same MTU. A value of 0 means that the client should assume that
+    // some subnets of the directly connected network may have smaller MTUs.
+    //
+    // The code for this option is 27, and its length is 1.
+    //
+    //  Code   Len  Value
+    // +-----+-----+-----+
+    // |  27 |  1  | 0/1 |
+    // +-----+-----+-----+
+    AllSubnetsAreLocal(bool),
+    // Broadcast Address Option
+    //
+    // This option specifies the broadcast address in use on the client's
+    // subnet.
+    //
+    // The code for this option is 28, and its length is 4.
+    //
+    //  Code   Len     Broadcast Address
+    // +-----+-----+-----+-----+-----+-----+
+    // |  28 |  4  |  b1 |  b2 |  b3 |  b4 |
+    // +-----+-----+-----+-----+-----+-----+
+    BroadcastAddress(Ipv4Addr),
+    // Perform Mask Discovery Option
+    //
+    // This option specifies whether or not the client should perform subnet
+    // mask discovery using ICMP. A value of 0 indicates that the client
+    // should not perform mask discovery. A value of 1 means that the
+    // client should perform mask discovery.
+    //
+    // The code for this option is 29, and its length is 1.
+    //
+    //  Code   Len  Value
+    // +-----+-----+-----+
+    // |  29 |  1  | 0/1 |
+    // +-----+-----+-----+
+    PerformMaskDiscovery(bool),
+    // Mask Supplier Option
+    //
+    // This option specifies whether or not the client should respond to
+    // subnet mask requests using ICMP.  A value of 0 indicates that the
+    // client should not respond.  A value of 1 means that the client should
+    // respond.
+    //
+    // The code for this option is 30, and its length is 1.
+    //
+    //  Code   Len  Value
+    // +-----+-----+-----+
+    // |  30 |  1  | 0/1 |
+    // +-----+-----+-----+
+    MaskSupplier(bool),
+    // Perform Router Discovery Option
+    //
+    // This option specifies whether or not the client should solicit
+    // routers using the Router Discovery mechanism defined in RFC 1256.
+    // A value of 0 indicates that the client should not perform
+    // router discovery. A value of 1 means that the client should perform
+    // router discovery.
+    //
+    // The code for this option is 31, and its length is 1.
+    //
+    //  Code   Len  Value
+    // +-----+-----+-----+
+    // |  31 |  1  | 0/1 |
+    // +-----+-----+-----+
+    PerformRouterDiscovery(bool),
+    // Router Solicitation Address Option
+    //
+    // This option specifies the address to which the client should transmit
+    // router solicitation requests.
+    //
+    // The code for this option is 32, and its length is 4.
+    //
+    //  Code   Len            Address
+    // +-----+-----+-----+-----+-----+-----+
+    // |  32 |  4  |  a1 |  a2 |  a3 |  a4 |
+    // +-----+-----+-----+-----+-----+-----+
+    RouterSolicitationAddress(Ipv4Addr),
+    // Static Route Option
+    //
+    // This option specifies a list of static routes that the client should
+    // install in its routing cache. If multiple routes to the same
+    // destination are specified, they are listed in descending order of
+    // priority.
+    //
+    // The routes consist of a list of IP address pairs. The first address
+    // is the destination address, and the second address is the router for
+    // the destination.
+    //
+    // The default route (0.0.0.0) is an illegal destination for a static
+    // route.
+    //
+    // The code for this option is 33.  The minimum length of this option is
+    // 8, and the length MUST be a multiple of 8.
+    //
+    //  Code   Len         Destination 1           Router 1
+    // +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+    // |  33 |  n  |  d1 |  d2 |  d3 |  d4 |  r1 |  r2 |  r3 |  r4 |
+    // +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+    //         Destination 2           Router 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+---
+    // |  d1 |  d2 |  d3 |  d4 |  r1 |  r2 |  r3 |  r4 | ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+---
+    StaticRoute(Vec<(Ipv4Addr, Ipv4Addr)>),
 }
 
 impl DhcpOption {
@@ -603,6 +725,72 @@ impl DhcpOption {
                 for path_mtu_plateau in path_mtu_plateau_table {
                     result.push(((path_mtu_plateau >> 8) & 0xFF) as u8);
                     result.push((path_mtu_plateau & 0xFF) as u8);
+                }
+                result
+            }
+            DhcpOption::InterfaceMtu(interface_mtu) => {
+                let mut result = Vec::new();
+                result.push(26);
+                result.push(2);
+                result.push(((interface_mtu >> 8) & 0xFF) as u8);
+                result.push((interface_mtu & 0xFF) as u8);
+                result
+            }
+            DhcpOption::AllSubnetsAreLocal(all_subnets_are_local) => {
+                let mut result = Vec::new();
+                result.push(27);
+                result.push(1);
+                result.push(if *all_subnets_are_local { 1 } else { 0 });
+                result
+            }
+            DhcpOption::BroadcastAddress(broadcast_address) => {
+                let mut result = Vec::new();
+                result.push(28);
+                result.push(4);
+                result.extend_from_slice(&broadcast_address.octets());
+                result
+            }
+            DhcpOption::PerformMaskDiscovery(perform_mask_discovery) => {
+                let mut result = Vec::new();
+                result.push(29);
+                result.push(1);
+                result.push(if *perform_mask_discovery { 1 } else { 0 });
+                result
+            }
+            DhcpOption::MaskSupplier(mask_supplier) => {
+                let mut result = Vec::new();
+                result.push(30);
+                result.push(1);
+                result.push(if *mask_supplier { 1 } else { 0 });
+                result
+            }
+            DhcpOption::PerformRouterDiscovery(perform_router_discovery) => {
+                let mut result = Vec::new();
+                result.push(31);
+                result.push(1);
+                result.push(if *perform_router_discovery { 1 } else { 0 });
+                result
+            }
+            DhcpOption::RouterSolicitationAddress(router_solicitation_address) => {
+                let mut result = Vec::new();
+                result.push(32);
+                result.push(4);
+                result.extend_from_slice(&router_solicitation_address.octets());
+                result
+            }
+            DhcpOption::StaticRoute(static_route) => {
+                let mut result = Vec::new();
+                result.push(33);
+                result.push((static_route.len() * 8) as u8);
+                for static_route in static_route {
+                    result.push(static_route.0.octets()[0]);
+                    result.push(static_route.0.octets()[1]);
+                    result.push(static_route.0.octets()[2]);
+                    result.push(static_route.0.octets()[3]);
+                    result.push(static_route.1.octets()[0]);
+                    result.push(static_route.1.octets()[1]);
+                    result.push(static_route.1.octets()[2]);
+                    result.push(static_route.1.octets()[3]);
                 }
                 result
             }
@@ -1307,10 +1495,10 @@ impl DhcpOption {
                 let (filters, data) = data.split_at(len as usize);
                 let filters = filters
                     .chunks_exact(8)
-                    .map(|filters| {
+                    .map(|filter| {
                         (
-                            Ipv4Addr::new(filters[0], filters[1], filters[2], filters[3]),
-                            Ipv4Addr::new(filters[4], filters[5], filters[6], filters[7]),
+                            Ipv4Addr::new(filter[0], filter[1], filter[2], filter[3]),
+                            Ipv4Addr::new(filter[4], filter[5], filter[6], filter[7]),
                         )
                     })
                     .collect::<Vec<(Ipv4Addr, Ipv4Addr)>>();
@@ -1390,7 +1578,9 @@ impl DhcpOption {
                 let (value, data) = data.split_at(4);
 
                 Ok((
-                    DhcpOption::PathMtuAgingTimeout(u32::from_be_bytes([value[0], value[1] ,value[2], value[3]])),
+                    DhcpOption::PathMtuAgingTimeout(u32::from_be_bytes([
+                        value[0], value[1], value[2], value[3],
+                    ])),
                     data,
                 ))
             }
@@ -1415,12 +1605,223 @@ impl DhcpOption {
                 let (mtu_sizes, data) = data.split_at(len as usize);
                 let mtu_sizes = mtu_sizes
                     .chunks_exact(2)
-                    .map(|filters| {
-                        u16::from_be_bytes([filters[0], filters[1]])
-                    })
+                    .map(|filters| u16::from_be_bytes([filters[0], filters[1]]))
                     .collect::<Vec<u16>>();
 
                 Ok((DhcpOption::PathMtuPlateauTable(mtu_sizes), data))
+            }
+            26 => {
+                // Check that the data has at least 2 bytes.
+                if data.len() < 3 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse interface MTU".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse interface MTU".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (value, data) = data.split_at(2);
+
+                Ok((
+                    DhcpOption::InterfaceMtu(u16::from_be_bytes([value[0], value[1]])),
+                    data,
+                ))
+            }
+            27 => {
+                // Check that the data has at least 1 byte.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse all subnets are local".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse all subnets are local".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (value, data) = data.split_at(1);
+
+                Ok((DhcpOption::AllSubnetsAreLocal(value[0] != 0), data))
+            }
+            28 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse broadcast address".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse broadcast address".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (address, data) = data.split_at(4);
+
+                Ok((
+                    DhcpOption::BroadcastAddress(Ipv4Addr::new(
+                        address[0], address[1], address[2], address[3],
+                    )),
+                    data,
+                ))
+            }
+            29 => {
+                // Check that the data has at least 1 byte.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse perform mask discovery".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse perform mask discovery".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (address, data) = data.split_at(1);
+
+                Ok((DhcpOption::PerformMaskDiscovery(address[0] != 0), data))
+            }
+            30 => {
+                // Check that the data has at least 1 byte.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse mask supplier".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse mask supplier".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (address, data) = data.split_at(1);
+
+                Ok((DhcpOption::MaskSupplier(address[0] != 0), data))
+            }
+            31 => {
+                // Check that the data has at least 1byte.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse perform router discovery".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse perform router discovery".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (address, data) = data.split_at(1);
+
+                Ok((DhcpOption::PerformRouterDiscovery(address[0] != 0), data))
+            }
+            32 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse router solicitation address".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse router solicitation address".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (address, data) = data.split_at(4);
+
+                Ok((
+                    DhcpOption::RouterSolicitationAddress(Ipv4Addr::new(
+                        address[0], address[1], address[2], address[3],
+                    )),
+                    data,
+                ))
+            }
+            33 => {
+                // Check that the data has at least 8 bytes.
+                if data.len() < 9 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse static route".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse static route".to_string(),
+                        ))
+                    }
+                };
+
+                // Check that the length is a multiple of 8.
+                if len % 8 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse static route".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (routes, data) = data.split_at(len as usize);
+                let routes = routes
+                    .chunks_exact(8)
+                    .map(|route| {
+                        (
+                            Ipv4Addr::new(route[0], route[1], route[2], route[3]),
+                            Ipv4Addr::new(route[4], route[5], route[6], route[7]),
+                        )
+                    })
+                    .collect::<Vec<(Ipv4Addr, Ipv4Addr)>>();
+
+                Ok((DhcpOption::StaticRoute(routes), data))
             }
             _ => Err(DhcpError::ParsingError(format!(
                 "Unknown option code: {}",

@@ -742,17 +742,261 @@ mod tests {
     fn option_path_mtu_plateau_table_deserialize() {
         let data = vec![25, 4, 5, 220, 5, 219];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(
-            option,
-            DhcpOption::PathMtuPlateauTable(vec![1500, 1499])
-        );
+        assert_eq!(option, DhcpOption::PathMtuPlateauTable(vec![1500, 1499]));
         assert_eq!(data, &[]);
 
         let data = vec![25, 4, 5, 220, 5, 219, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::PathMtuPlateauTable(vec![1500, 1499]));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_interface_mtu_serialize() {
+        let option = DhcpOption::InterfaceMtu(1500);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![26, 2, 5, 220]);
+    }
+
+    #[test]
+    fn option_interface_mtu_deserialize() {
+        let data = vec![26, 2, 5, 220];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::InterfaceMtu(1500));
+        assert_eq!(data, &[]);
+
+        let data = vec![26, 2, 5, 220, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::InterfaceMtu(1500));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_all_subnets_are_local_serialize() {
+        let option = DhcpOption::AllSubnetsAreLocal(true);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![27, 1, 1]);
+
+        let option = DhcpOption::AllSubnetsAreLocal(false);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![27, 1, 0]);
+    }
+
+    #[test]
+    fn option_all_subnets_are_local_deserialize() {
+        let data = vec![27, 1, 1];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::AllSubnetsAreLocal(true));
+        assert_eq!(data, &[]);
+
+        let data = vec![27, 1, 0];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::AllSubnetsAreLocal(false));
+        assert_eq!(data, &[]);
+
+        let data = vec![27, 1, 0, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::AllSubnetsAreLocal(false));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_broadcast_address_serialize() {
+        let option = DhcpOption::BroadcastAddress(Ipv4Addr::new(192, 168, 1, 255));
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![28, 4, 192, 168, 1, 255]);
+    }
+
+    #[test]
+    fn option_broadcast_address_deserialize() {
+        let data = vec![28, 4, 192, 168, 1, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
         assert_eq!(
             option,
-            DhcpOption::PathMtuPlateauTable(vec![1500, 1499])
+            DhcpOption::BroadcastAddress(Ipv4Addr::new(192, 168, 1, 255))
+        );
+        assert_eq!(data, &[]);
+
+        let data = vec![28, 4, 192, 168, 1, 255, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(
+            option,
+            DhcpOption::BroadcastAddress(Ipv4Addr::new(192, 168, 1, 255))
+        );
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_perform_mask_discovery_serialize() {
+        let option = DhcpOption::PerformMaskDiscovery(true);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![29, 1, 1]);
+
+        let option = DhcpOption::PerformMaskDiscovery(false);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![29, 1, 0]);
+    }
+
+    #[test]
+    fn option_perform_mask_discovery_deserialize() {
+        let data = vec![29, 1, 1];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::PerformMaskDiscovery(true));
+        assert_eq!(data, &[]);
+
+        let data = vec![29, 1, 0];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::PerformMaskDiscovery(false));
+        assert_eq!(data, &[]);
+
+        let data = vec![29, 1, 0, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::PerformMaskDiscovery(false));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_mask_supplier_serialize() {
+        let option = DhcpOption::MaskSupplier(true);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![30, 1, 1]);
+
+        let option = DhcpOption::MaskSupplier(false);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![30, 1, 0]);
+    }
+
+    #[test]
+    fn option_mask_supplier_deserialize() {
+        let data = vec![30, 1, 1];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::MaskSupplier(true));
+        assert_eq!(data, &[]);
+
+        let data = vec![30, 1, 0];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::MaskSupplier(false));
+        assert_eq!(data, &[]);
+
+        let data = vec![30, 1, 0, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::MaskSupplier(false));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_perform_router_discovery_serialize() {
+        let option = DhcpOption::PerformRouterDiscovery(true);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![31, 1, 1]);
+
+        let option = DhcpOption::PerformRouterDiscovery(false);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![31, 1, 0]);
+    }
+
+    #[test]
+    fn option_perform_router_discovery_deserialize() {
+        let data = vec![31, 1, 1];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::PerformRouterDiscovery(true));
+        assert_eq!(data, &[]);
+
+        let data = vec![31, 1, 0];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::PerformRouterDiscovery(false));
+        assert_eq!(data, &[]);
+
+        let data = vec![31, 1, 0, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::PerformRouterDiscovery(false));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_router_solicitation_address_serialize() {
+        let option = DhcpOption::RouterSolicitationAddress(Ipv4Addr::new(192, 168, 1, 1));
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![32, 4, 192, 168, 1, 1]);
+    }
+
+    #[test]
+    fn option_router_solicitation_address_deserialize() {
+        let data = vec![32, 4, 192, 168, 1, 1];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(
+            option,
+            DhcpOption::RouterSolicitationAddress(Ipv4Addr::new(192, 168, 1, 1))
+        );
+        assert_eq!(data, &[]);
+
+        let data = vec![32, 4, 192, 168, 1, 1, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(
+            option,
+            DhcpOption::RouterSolicitationAddress(Ipv4Addr::new(192, 168, 1, 1))
+        );
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_static_route_serialize() {
+        let option = DhcpOption::StaticRoute(vec![
+            (
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 100),
+            ),
+            (
+                Ipv4Addr::new(192, 168, 0, 2),
+                Ipv4Addr::new(192, 168, 0, 200),
+            ),
+        ]);
+        let serialized = option.serialize();
+        assert_eq!(
+            serialized,
+            vec![
+                33, 16, 192, 168, 0, 1, 192, 168, 0, 100, 192, 168, 0, 2, 192, 168, 0, 200
+            ]
+        );
+    }
+
+    #[test]
+    fn option_static_route_deserialize() {
+        let data = vec![
+            33, 16, 192, 168, 0, 1, 192, 168, 0, 100, 192, 168, 0, 2, 192, 168, 0, 200,
+        ];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(
+            option,
+            DhcpOption::StaticRoute(vec![
+                (
+                    Ipv4Addr::new(192, 168, 0, 1),
+                    Ipv4Addr::new(192, 168, 0, 100),
+                ),
+                (
+                    Ipv4Addr::new(192, 168, 0, 2),
+                    Ipv4Addr::new(192, 168, 0, 200),
+                ),
+            ])
+        );
+        assert_eq!(data, &[]);
+
+        let data = vec![
+            33, 16, 192, 168, 0, 1, 192, 168, 0, 100, 192, 168, 0, 2, 192, 168, 0, 200, 255,
+        ];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(
+            option,
+            DhcpOption::StaticRoute(vec![
+                (
+                    Ipv4Addr::new(192, 168, 0, 1),
+                    Ipv4Addr::new(192, 168, 0, 100),
+                ),
+                (
+                    Ipv4Addr::new(192, 168, 0, 2),
+                    Ipv4Addr::new(192, 168, 0, 200),
+                ),
+            ])
         );
         assert_eq!(data, &[255]);
     }
