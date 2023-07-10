@@ -1147,4 +1147,24 @@ mod tests {
         assert_eq!(option, DhcpOption::TcpKeepaliveGarbage(false));
         assert_eq!(data, &[255]);
     }
+
+    #[test]
+    fn option_network_information_servers_serialize() {
+        let option = DhcpOption::NetworkInformationServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![41, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
+    }
+
+    #[test]
+    fn option_network_information_servers_deserialize() {
+        let data = vec![41, 8, 192, 168, 0, 1, 192, 168, 0, 2];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::NetworkInformationServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[]);
+
+        let data = vec![41, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::NetworkInformationServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[255]);
+    }
 }

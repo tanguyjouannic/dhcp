@@ -566,7 +566,7 @@ pub enum DhcpOption {
     //
     // This option specifies the interval (in seconds) that the client TCP
     // should wait before sending a keepalive message on a TCP connection.
-    // The time is specified as a 32-bit unsigned integer.  A value of zero
+    // The time is specified as a 32-bit unsigned integer. A value of zero
     // indicates that the client should not generate keepalive messages on
     // connections unless specifically requested by an application.
     //
@@ -581,7 +581,7 @@ pub enum DhcpOption {
     //
     // This option specifies the whether or not the client should send TCP
     // keepalive messages with a octet of garbage for compatibility with
-    // older implementations.  A value of 0 indicates that a garbage octet
+    // older implementations. A value of 0 indicates that a garbage octet
     // should not be sent. A value of 1 indicates that a garbage octet
     // should be sent.
     //
@@ -592,6 +592,33 @@ pub enum DhcpOption {
     // |  39 |  1  | 0/1 |
     // +-----+-----+-----+
     TcpKeepaliveGarbage(bool),
+    // Network Information Service Domain Option
+    //
+    // This option specifies the name of the client's NIS domain. The
+    // domain is formatted as a character string consisting of characters
+    // from the NVT ASCII character set.
+    //
+    // The code for this option is 40. Its minimum length is 1.
+    //
+    //     Code   Len      NIS Domain Name
+    // +-----+-----+-----+-----+-----+-----+---
+    // |  40 |  n  |  n1 |  n2 |  n3 |  n4 | ...
+    // +-----+-----+-----+-----+-----+-----+---
+    NetworkInformationServiceDomain(String),
+    // Network Information Servers Option
+    //
+    // This option specifies a list of IP addresses indicating NIS servers
+    // available to the client. Servers SHOULD be listed in order of
+    // preference.
+    //
+    // The code for this option is 41. Its minimum length is 4, and the
+    // length MUST be a multiple of 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    // |  41 |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    NetworkInformationServers(Vec<Ipv4Addr>),
 }
 
 impl DhcpOption {
@@ -924,6 +951,27 @@ impl DhcpOption {
                 result.push(39);
                 result.push(1);
                 result.push(if *tcp_keepalive_garbage { 1 } else { 0 });
+                result
+            }
+            DhcpOption::NetworkInformationServiceDomain(
+                network_information_service_domain,
+            ) => {
+                let mut result = Vec::new();
+                result.push(40);
+                result.push(network_information_service_domain.len() as u8);
+                result.extend_from_slice(network_information_service_domain.as_bytes());
+                result
+            }
+            DhcpOption::NetworkInformationServers(network_information_servers) => {
+                let mut result = Vec::new();
+                result.push(41);
+                result.push((network_information_servers.len() * 4) as u8);
+                for network_information_server in network_information_servers {
+                    result.push(network_information_server.octets()[0]);
+                    result.push(network_information_server.octets()[1]);
+                    result.push(network_information_server.octets()[2]);
+                    result.push(network_information_server.octets()[3]);
+                }
                 result
             }
         }
@@ -2108,6 +2156,84 @@ impl DhcpOption {
 
                 Ok((
                     DhcpOption::TcpKeepaliveGarbage(garbage[0] != 0),
+                    data,
+                ))
+            }
+            40 => {
+                // Check that the data has at least 1 bytes.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse network information service domain domain".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse network information service domain domain".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse network information service domain domain".to_string(),
+                    ));
+                }
+
+
+                // Retrieve the value.
+                let (domain, data) = data.split_at(len as usize);
+
+                Ok((
+                    DhcpOption::NetworkInformationServiceDomain(String::from_utf8_lossy(domain).to_string()),
+                    data,
+                ))
+            }
+            41 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse network information service servers server address".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse network information service servers server address".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse network information service servers server address".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse network information service servers server address".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::NetworkInformationServers(servers),
                     data,
                 ))
             }
