@@ -619,6 +619,261 @@ pub enum DhcpOption {
     // |  41 |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     NetworkInformationServers(Vec<Ipv4Addr>),
+    // Network Time Protocol Servers Option
+    //
+    // This option specifies a list of IP addresses indicating NTP
+    // servers available to the client. Servers SHOULD be listed in order
+    // of preference.
+    //
+    // The code for this option is 42. Its minimum length is 4, and the
+    // length MUST be a multiple of 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    // |  42 |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    NetworkTimeProtocolServers(Vec<Ipv4Addr>),
+    // Vendor Specific Information
+    //
+    // This option is used by clients and servers to exchange vendor-
+    // specific information. The information is an opaque object of n
+    // octets, presumably interpreted by vendor-specific code on the clients
+    // and servers. The definition of this information is vendor specific.
+    // The vendor is indicated in the vendor class identifier option.
+    // Servers not equipped to interpret the vendor-specific information
+    // sent by a client MUST ignore it (although it may be reported).
+    // Clients which do not receive desired vendor-specific information
+    // SHOULD make an attempt to operate without it, although they may do so
+    // (and announce they are doing so) in a degraded mode.
+    //
+    // If a vendor potentially encodes more than one item of information in
+    // this option, then the vendor SHOULD encode the option using
+    // "Encapsulated vendor-specific options" as described below:
+    //
+    // The Encapsulated vendor-specific options field SHOULD be encoded as a
+    // sequence of code/length/value fields of identical syntax to the DHCP
+    // options field with the following exceptions:
+    //
+    //     1) There SHOULD NOT be a "magic cookie" field in the encapsulated
+    //         vendor-specific extensions field.
+    //
+    //     2) Codes other than 0 or 255 MAY be redefined by the vendor within
+    //         the encapsulated vendor-specific extensions field, but SHOULD
+    //         conform to the tag-length-value syntax defined in section 2.
+    //
+    //     3) Code 255 (END), if present, signifies the end of the
+    //         encapsulated vendor extensions, not the end of the vendor
+    //         extensions field. If no code 255 is present, then the end of
+    //         the enclosing vendor-specific information field is taken as the
+    //         end of the encapsulated vendor-specific extensions field.
+    //
+    // The code for this option is 43 and its minimum length is 1.
+    //
+    //  Code   Len   Vendor-specific information
+    // +-----+-----+-----+-----+---
+    // |  43 |  n  |  i1 |  i2 | ...
+    // +-----+-----+-----+-----+---
+    //
+    // When encapsulated vendor-specific extensions are used, the
+    // information bytes 1-n have the following format:
+    //
+    //  Code   Len   Data item        Code   Len   Data item       Code
+    // +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+    // |  T1 |  n  |  d1 |  d2 | ... |  T2 |  n  |  D1 |  D2 | ... | ... |
+    // +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+    VendorSpecificInformation(Vec<u8>),
+    // NetBIOS over TCP/IP Name Server Option
+    //
+    // The NetBIOS name server (NBNS) option specifies a list of RFC
+    // 1001/1002 NBNS name servers listed in order of preference.
+    //
+    // The code for this option is 44. The minimum length of the option is
+    // 4 octets, and the length must always be a multiple of 4.
+    //
+    //  Code   Len           Address 1              Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+----
+    // |  44 |  n  |  a1 |  a2 |  a3 |  a4 |  b1 |  b2 |  b3 |  b4 | ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+----
+    NetBiosOverTcpIpNameServer(Vec<Ipv4Addr>),
+    // NetBIOS over TCP/IP Datagram Distribution Server Option
+    //
+    // The NetBIOS datagram distribution server (NBDD) option specifies a
+    // list of RFC 1001/1002 NBDD servers listed in order of preference. The
+    // code for this option is 45. The minimum length of the option is 4
+    // octets, and the length must always be a multiple of 4.
+    //
+    //  Code   Len           Address 1              Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+----
+    // |  45 |  n  |  a1 |  a2 |  a3 |  a4 |  b1 |  b2 |  b3 |  b4 | ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+----
+    NetBiosOverTcpIpDatagramDistributionServer(Vec<Ipv4Addr>),
+    // NetBIOS over TCP/IP Node Type Option
+    //
+    // The NetBIOS node type option allows NetBIOS over TCP/IP clients which
+    // are configurable to be configured as described in RFC 1001/1002. The
+    // value is specified as a single octet which identifies the client type
+    // as follows:
+    //
+    //     Value         Node Type
+    //     -----         ---------
+    //     0x1           B-node
+    //     0x2           P-node
+    //     0x4           M-node
+    //     0x8           H-node
+    //
+    // In the above chart, the notation '0x' indicates a number in base-16
+    // (hexadecimal).
+    //
+    // The code for this option is 46. The length of this option is always
+    // 1.
+    //
+    //  Code   Len  Node Type
+    // +-----+-----+-----------+
+    // |  46 |  1  | see above |
+    // +-----+-----+-----------+
+    NetBiosOverTcpIpNodeType(NetBiosOverTcpIpNodeType),
+    // NetBIOS over TCP/IP Scope Option
+    //
+    // The NetBIOS scope option specifies the NetBIOS over TCP/IP scope
+    // parameter for the client as specified in RFC 1001/1002.
+    //
+    // The code for this option is 47. The minimum length of this option is
+    // 1.
+    //
+    //  Code   Len       NetBIOS Scope
+    // +-----+-----+-----+-----+-----+-----+----
+    // |  47 |  n  |  s1 |  s2 |  s3 |  s4 | ...
+    // +-----+-----+-----+-----+-----+-----+----
+    NetBiosOverTcpIpScope(Vec<u8>),
+    // X Window System Font Server Option
+    //
+    // This option specifies a list of X Window System Font servers
+    // available to the client. Servers SHOULD be listed in order of
+    // preference.
+    //
+    // The code for this option is 48. The minimum length of this option is
+    // 4 octets, and the length MUST be a multiple of 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+---
+    // |  48 |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |   ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+---
+    XWindowSystemFontServer(Vec<Ipv4Addr>),
+    // X Window System Display Manager Option
+    //
+    // This option specifies a list of IP addresses of systems that are
+    // running the X Window System Display Manager and are available to the
+    // client.
+    //
+    // Addresses SHOULD be listed in order of preference.
+    //
+    // The code for the this option is 49. The minimum length of this option
+    // is 4, and the length MUST be a multiple of 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+---
+    // |  49 |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |   ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+---
+    XWindowSystemDisplayManager(Vec<Ipv4Addr>),
+    // Network Information Service+ Domain Option
+    //
+    // This option specifies the name of the client's NIS+ domain. The
+    // domain is formatted as a character string consisting of characters
+    // from the NVT ASCII character set.
+    //
+    // The code for this option is 64. Its minimum length is 1.
+    //
+    //  Code   Len      NIS Client Domain Name
+    // +-----+-----+-----+-----+-----+-----+---
+    // |  64 |  n  |  n1 |  n2 |  n3 |  n4 | ...
+    // +-----+-----+-----+-----+-----+-----+---
+    NetworkInformationServicePlusDomain(String),
+    // Network Information Service+ Servers Option
+    //
+    // This option specifies a list of IP addresses indicating NIS+ servers
+    // available to the client. Servers SHOULD be listed in order of
+    // preference.
+    //
+    // The code for this option is 65. Its minimum length is 4, and the
+    // length MUST be a multiple of 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    // |  65 |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    NetworkInformationServicePlusServers(Vec<Ipv4Addr>),
+    // Mobile IP Home Agent option
+    //
+    // This option specifies a list of IP addresses indicating mobile IP
+    // home agents available to the client. Agents SHOULD be listed in
+    // order of preference.
+    //
+    // The code for this option is 68. Its minimum length is 0 (indicating
+    // no home agents are available) and the length MUST be a multiple of 4.
+    // It is expected that the usual length will be four octets, containing
+    // a single home agent's address.
+    //
+    //  Code Len    Home Agent Addresses (zero or more)
+    // +-----+-----+-----+-----+-----+-----+--
+    // | 68  |  n  | a1  | a2  | a3  | a4  | ...
+    // +-----+-----+-----+-----+-----+-----+--
+    MobileIpHomeAgent(Vec<Ipv4Addr>),
+    // Simple Mail Transport Protocol (SMTP) Server Option
+    //
+    // The SMTP server option specifies a list of SMTP servers available to
+    // the client. Servers SHOULD be listed in order of preference.
+    //
+    // The code for the SMTP server option is 69. The minimum length for
+    // this option is 4 octets, and the length MUST always be a multiple of
+    // 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    // | 69  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    SimpleMailTransportProtocolServer(Vec<Ipv4Addr>),
+    // Post Office Protocol (POP3) Server Option
+    //
+    // The POP3 server option specifies a list of POP3 available to the
+    // client. Servers SHOULD be listed in order of preference.
+    //
+    // The code for the POP3 server option is 70. The minimum length for
+    // this option is 4 octets, and the length MUST always be a multiple of
+    // 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    // | 70  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    PostOfficeProtocolServer(Vec<Ipv4Addr>),
+    // Network News Transport Protocol (NNTP) Server Option
+    //
+    // The NNTP server option specifies a list of NNTP available to the
+    // client. Servers SHOULD be listed in order of preference.
+    //
+    // The code for the NNTP server option is 71. The minimum length for
+    // this option is 4 octets, and the length MUST always be a multiple of
+    // 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    // | 71  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    NetworkNewsTransportProtocolServer(Vec<Ipv4Addr>),
+    // Default World Wide Web (WWW) Server Option
+    //
+    // The WWW server option specifies a list of WWW available to the
+    // client. Servers SHOULD be listed in order of preference.
+    //
+    // The code for the WWW server option is 72. The minimum length for
+    // this option is 4 octets, and the length MUST always be a multiple of
+    // 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    // | 72  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    DefaultWorldWideWebServer(Vec<Ipv4Addr>),
 }
 
 impl DhcpOption {
@@ -971,6 +1226,182 @@ impl DhcpOption {
                     result.push(network_information_server.octets()[1]);
                     result.push(network_information_server.octets()[2]);
                     result.push(network_information_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::NetworkTimeProtocolServers(network_time_protocol_servers) => {
+                let mut result = Vec::new();
+                result.push(42);
+                result.push((network_time_protocol_servers.len() * 4) as u8);
+                for network_time_protocol_server in network_time_protocol_servers {
+                    result.push(network_time_protocol_server.octets()[0]);
+                    result.push(network_time_protocol_server.octets()[1]);
+                    result.push(network_time_protocol_server.octets()[2]);
+                    result.push(network_time_protocol_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::VendorSpecificInformation(vendor_specific_information) => {
+                let mut result = Vec::new();
+                result.push(43);
+                result.push(vendor_specific_information.len() as u8);
+                result.extend_from_slice(vendor_specific_information);
+                result
+            }
+            DhcpOption::NetBiosOverTcpIpNameServer(netbios_over_tcpip_name_server) => {
+                let mut result = Vec::new();
+                result.push(44);
+                result.push((netbios_over_tcpip_name_server.len() * 4) as u8);
+                for netbios_over_tcpip_name_server in netbios_over_tcpip_name_server {
+                    result.push(netbios_over_tcpip_name_server.octets()[0]);
+                    result.push(netbios_over_tcpip_name_server.octets()[1]);
+                    result.push(netbios_over_tcpip_name_server.octets()[2]);
+                    result.push(netbios_over_tcpip_name_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::NetBiosOverTcpIpDatagramDistributionServer(
+                netbios_over_tcpip_datagram_distribution_server,
+            ) => {
+                let mut result = Vec::new();
+                result.push(45);
+                result.push((netbios_over_tcpip_datagram_distribution_server.len() * 4) as u8);
+                for netbios_over_tcpip_datagram_distribution_server
+                    in netbios_over_tcpip_datagram_distribution_server
+                {
+                    result.push(netbios_over_tcpip_datagram_distribution_server.octets()[0]);
+                    result.push(netbios_over_tcpip_datagram_distribution_server.octets()[1]);
+                    result.push(netbios_over_tcpip_datagram_distribution_server.octets()[2]);
+                    result.push(netbios_over_tcpip_datagram_distribution_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::NetBiosOverTcpIpNodeType(netbios_over_tcpip_node_type) => {
+                let mut result = Vec::new();
+                result.push(46);
+                result.push(1);
+                match netbios_over_tcpip_node_type {
+                    NetBiosOverTcpIpNodeType::BNode => result.push(1),
+                    NetBiosOverTcpIpNodeType::PNode => result.push(2),
+                    NetBiosOverTcpIpNodeType::MNode => result.push(4),
+                    NetBiosOverTcpIpNodeType::HNode => result.push(8),
+                }
+                result
+            }
+            DhcpOption::NetBiosOverTcpIpScope(netbios_over_tcpip_scope) => {
+                let mut result = Vec::new();
+                result.push(47);
+                result.push(netbios_over_tcpip_scope.len() as u8);
+                result.extend_from_slice(&netbios_over_tcpip_scope);
+                result
+            }
+            DhcpOption::XWindowSystemFontServer(x_window_system_font_server) => {
+                let mut result = Vec::new();
+                result.push(48);
+                result.push((x_window_system_font_server.len() * 4) as u8);
+                for x_window_system_font_server in x_window_system_font_server {
+                    result.push(x_window_system_font_server.octets()[0]);
+                    result.push(x_window_system_font_server.octets()[1]);
+                    result.push(x_window_system_font_server.octets()[2]);
+                    result.push(x_window_system_font_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::XWindowSystemDisplayManager(x_window_system_display_manager) => {
+                let mut result = Vec::new();
+                result.push(49);
+                result.push((x_window_system_display_manager.len() * 4) as u8);
+                for x_window_system_display_manager in x_window_system_display_manager {
+                    result.push(x_window_system_display_manager.octets()[0]);
+                    result.push(x_window_system_display_manager.octets()[1]);
+                    result.push(x_window_system_display_manager.octets()[2]);
+                    result.push(x_window_system_display_manager.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::NetworkInformationServicePlusDomain(
+                network_information_service_plus_domain,
+            ) => {
+                let mut result = Vec::new();
+                result.push(64);
+                result.push(network_information_service_plus_domain.len() as u8);
+                result.extend_from_slice(network_information_service_plus_domain.as_bytes());
+                result
+            }
+            DhcpOption::NetworkInformationServicePlusServers(
+                network_information_service_plus_servers,
+            ) => {
+                let mut result = Vec::new();
+                result.push(65);
+                result.push((network_information_service_plus_servers.len() * 4) as u8);
+                for network_information_service_plus_server in network_information_service_plus_servers
+                {
+                    result.push(network_information_service_plus_server.octets()[0]);
+                    result.push(network_information_service_plus_server.octets()[1]);
+                    result.push(network_information_service_plus_server.octets()[2]);
+                    result.push(network_information_service_plus_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::MobileIpHomeAgent(mobile_ip_home_agent) => {
+                let mut result = Vec::new();
+                result.push(68);
+                result.push((mobile_ip_home_agent.len() * 4) as u8);
+                for mobile_ip_home_agent in mobile_ip_home_agent {
+                    result.push(mobile_ip_home_agent.octets()[0]);
+                    result.push(mobile_ip_home_agent.octets()[1]);
+                    result.push(mobile_ip_home_agent.octets()[2]);
+                    result.push(mobile_ip_home_agent.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::SimpleMailTransportProtocolServer(simple_mail_transport_protocol_server) => {
+                let mut result = Vec::new();
+                result.push(69);
+                result.push((simple_mail_transport_protocol_server.len() * 4) as u8);
+                for simple_mail_transport_protocol_server in simple_mail_transport_protocol_server {
+                    result.push(simple_mail_transport_protocol_server.octets()[0]);
+                    result.push(simple_mail_transport_protocol_server.octets()[1]);
+                    result.push(simple_mail_transport_protocol_server.octets()[2]);
+                    result.push(simple_mail_transport_protocol_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::PostOfficeProtocolServer(post_office_protocol_server) => {
+                let mut result = Vec::new();
+                result.push(70);
+                result.push((post_office_protocol_server.len() * 4) as u8);
+                for post_office_protocol_server in post_office_protocol_server {
+                    result.push(post_office_protocol_server.octets()[0]);
+                    result.push(post_office_protocol_server.octets()[1]);
+                    result.push(post_office_protocol_server.octets()[2]);
+                    result.push(post_office_protocol_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::NetworkNewsTransportProtocolServer(
+                network_news_transport_protocol_server,
+            ) => {
+                let mut result = Vec::new();
+                result.push(71);
+                result.push((network_news_transport_protocol_server.len() * 4) as u8);
+                for network_news_transport_protocol_server in network_news_transport_protocol_server {
+                    result.push(network_news_transport_protocol_server.octets()[0]);
+                    result.push(network_news_transport_protocol_server.octets()[1]);
+                    result.push(network_news_transport_protocol_server.octets()[2]);
+                    result.push(network_news_transport_protocol_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::DefaultWorldWideWebServer(default_world_wide_web_server) => {
+                let mut result = Vec::new();
+                result.push(72);
+                result.push((default_world_wide_web_server.len() * 4) as u8);
+                for default_world_wide_web_server in default_world_wide_web_server {
+                    result.push(default_world_wide_web_server.octets()[0]);
+                    result.push(default_world_wide_web_server.octets()[1]);
+                    result.push(default_world_wide_web_server.octets()[2]);
+                    result.push(default_world_wide_web_server.octets()[3]);
                 }
                 result
             }
@@ -2237,10 +2668,627 @@ impl DhcpOption {
                     data,
                 ))
             }
+            42 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse network time protocol servers server address".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse network time protocol servers server address".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse network time protocol servers server address".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse network time protocol servers server address".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::NetworkTimeProtocolServers(servers),
+                    data,
+                ))
+            }
+            43 => {
+                // Check that the data has at least 1 bytes.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse vendor specific information".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse vendor specific information".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse vendor specific information".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (info, data) = data.split_at(len as usize);
+
+                Ok((
+                    DhcpOption::VendorSpecificInformation(info.to_vec()),
+                    data,
+                ))
+            }
+            44 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse netbios over tcp/ip name servers server address".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse netbios over tcp/ip name servers server address".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse netbios over tcp/ip name servers server address".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse netbios over tcp/ip name servers server address".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::NetBiosOverTcpIpNameServer(servers),
+                    data,
+                ))
+            }
+            45 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse netbios over tcp/ip datagram distribution server address".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse netbios over tcp/ip datagram distribution server address".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse netbios over tcp/ip datagram distribution server address".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse netbios over tcp/ip datagram distribution server address".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::NetBiosOverTcpIpDatagramDistributionServer(servers),
+                    data,
+                ))
+            }
+            46 => {
+                // Check that the data has at least 1 byte.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse netbios over tcp/ip node type".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse netbios over tcp/ip node type".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (node_type, data) = data.split_at(1);
+                let node_type = match node_type[0] {
+                    1 => NetBiosOverTcpIpNodeType::BNode,
+                    2 => NetBiosOverTcpIpNodeType::PNode,
+                    4 => NetBiosOverTcpIpNodeType::MNode,
+                    8 => NetBiosOverTcpIpNodeType::HNode,
+                    _ => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse netbios over tcp/ip node type".to_string(),
+                        ))
+                    }
+                };
+
+                Ok((
+                    DhcpOption::NetBiosOverTcpIpNodeType(node_type),
+                    data,
+                ))
+            }
+            47 => {
+                // Check that the data has at least 1 byte.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse netbios over tcp/ip scope".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse netbios over tcp/ip scope".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse netbios over tcp/ip scope".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (scope, data) = data.split_at(len as usize);
+
+                Ok((
+                    DhcpOption::NetBiosOverTcpIpScope(scope.to_vec()),
+                    data,
+                ))
+            }
+            48 => {
+                // Check that the data has at least 4 byte.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse X Window System Font server".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse X Window System Font server".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse X Window System Font server".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::XWindowSystemFontServer(servers),
+                    data,
+                ))
+            }
+            49 => {
+                // Check that the data has at least 4 byte.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse X Window System Display Manager".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse X Window System Display Manager".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse X Window System Display Manager".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::XWindowSystemDisplayManager(servers),
+                    data,
+                ))
+            }
+            64 => {
+                // Check that the data has at least 1 byte.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Network Information Service+ domain".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse Network Information Service+ domain".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (domain, data) = data.split_at(len as usize);
+
+                Ok((
+                    DhcpOption::NetworkInformationServicePlusDomain(String::from_utf8_lossy(domain).to_string()),
+                    data,
+                ))
+            }
+            65 => {
+                // Check that the data has at least 4 byte.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Network Information Service+ servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse Network Information Service+ servers".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Network Information Service+ servers".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Network Information Service+ servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::NetworkInformationServicePlusServers(servers),
+                    data,
+                ))
+            }
+            68 => {
+                // Check that the data has at least the length.
+                if data.len() < 1 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Mobile Ip Home Agent".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse Mobile Ip Home Agent".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Mobile Ip Home Agent".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Mobile Ip Home Agent".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                if len != 0 {
+                    let (servers, data) = data.split_at(len as usize);
+                    let servers = servers
+                        .chunks_exact(4)
+                        .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                        .collect::<Vec<Ipv4Addr>>();
+
+                    Ok((
+                        DhcpOption::MobileIpHomeAgent(servers),
+                        data,
+                    ))
+                } else {
+                    Ok((
+                        DhcpOption::MobileIpHomeAgent(Vec::new()),
+                        data,
+                    ))
+                }
+            }
+            69 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Simple Mail Transport Protocol Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse Simple Mail Transport Protocol Server servers".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Simple Mail Transport Protocol Server servers".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Simple Mail Transport Protocol Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::SimpleMailTransportProtocolServer(servers),
+                    data,
+                ))
+            }
+            70 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Post Office Protocol Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse Post Office Protocol Server servers".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Post Office Protocol Server servers".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Post Office Protocol Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::PostOfficeProtocolServer(servers),
+                    data,
+                ))
+            }
+            71 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Network News Transport Protocol Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse Network News Transport Protocol Server servers".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Network News Transport Protocol Server servers".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Network News Transport Protocol Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::NetworkNewsTransportProtocolServer(servers),
+                    data,
+                ))
+            }
+            72 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Default World Wide Web Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse Default World Wide Web Server servers".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Default World Wide Web Server servers".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Default World Wide Web Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::DefaultWorldWideWebServer(servers),
+                    data,
+                ))
+            }
             _ => Err(DhcpError::ParsingError(format!(
                 "Unknown option code: {}",
                 code
             ))),
         }
     }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum NetBiosOverTcpIpNodeType {
+    BNode,
+    PNode,
+    MNode,
+    HNode,
 }
