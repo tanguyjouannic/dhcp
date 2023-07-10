@@ -12,7 +12,7 @@ pub enum DhcpOption {
     //
     // The code for the pad option is 0, and its length is 1 octet.
     //
-    // Code
+    //  Code
     // +-----+
     // |  0  |
     // +-----+
@@ -24,7 +24,7 @@ pub enum DhcpOption {
     //
     // The code for the end option is 255, and its length is 1 octet.
     //
-    // Code
+    //  Code
     // +-----+
     // | 255 |
     // +-----+
@@ -39,7 +39,7 @@ pub enum DhcpOption {
     //
     // The code for the subnet mask option is 1, and its length is 4 octets.
     //
-    // Code   Len        Subnet Mask
+    //  Code   Len        Subnet Mask
     // +-----+-----+-----+-----+-----+-----+
     // |  1  |  4  |  m1 |  m2 |  m3 |  m4 |
     // +-----+-----+-----+-----+-----+-----+
@@ -54,7 +54,7 @@ pub enum DhcpOption {
     //
     // The code for the time offset option is 2, and its length is 4 octets.
     //
-    // Code   Len        Time Offset
+    //  Code   Len        Time Offset
     // +-----+-----+-----+-----+-----+-----+
     // |  2  |  4  |  n1 |  n2 |  n3 |  n4 |
     // +-----+-----+-----+-----+-----+-----+
@@ -68,7 +68,7 @@ pub enum DhcpOption {
     // router option is 4 octets, and the length MUST always be a multiple
     // of 4.
     //
-    // Code   Len         Address 1               Address 2
+    //  Code   Len         Address 1               Address 2
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     // |  3  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
@@ -83,7 +83,7 @@ pub enum DhcpOption {
     // this option is 4 octets, and the length MUST always be a multiple of
     // 4.
     //
-    // Code   Len         Address 1               Address 2
+    //  Code   Len         Address 1               Address 2
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     // |  4  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
@@ -98,7 +98,7 @@ pub enum DhcpOption {
     // this option is 4 octets, and the length MUST always be a multiple of
     // 4.
     //
-    // Code   Len         Address 1               Address 2
+    //  Code   Len         Address 1               Address 2
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     // |  5  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
@@ -113,7 +113,7 @@ pub enum DhcpOption {
     // for this option is 4 octets, and the length MUST always be a multiple
     // of 4.
     //
-    // Code   Len         Address 1               Address 2
+    //  Code   Len         Address 1               Address 2
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     // |  6  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
@@ -127,7 +127,7 @@ pub enum DhcpOption {
     // The code for the log server option is 7. The minimum length for this
     // option is 4 octets, and the length MUST always be a multiple of 4.
     //
-    // Code   Len         Address 1               Address 2
+    //  Code   Len         Address 1               Address 2
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     // |  7  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
@@ -141,7 +141,7 @@ pub enum DhcpOption {
     // The code for the log server option is 8. The minimum length for this
     // option is 4 octets, and the length MUST always be a multiple of 4.
     //
-    // Code   Len         Address 1               Address 2
+    //  Code   Len         Address 1               Address 2
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     // |  8  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
@@ -155,7 +155,7 @@ pub enum DhcpOption {
     // The code for the LPR server option is 9. The minimum length for this
     // option is 4 octets, and the length MUST always be a multiple of 4.
     //
-    // Code   Len         Address 1               Address 2
+    //  Code   Len         Address 1               Address 2
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     // |  9  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
@@ -170,7 +170,7 @@ pub enum DhcpOption {
     // this option is 4 octets, and the length MUST always be a multiple of
     // 4.
     //
-    // Code   Len         Address 1               Address 2
+    //  Code   Len         Address 1               Address 2
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     // |  10 |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
@@ -184,7 +184,7 @@ pub enum DhcpOption {
     // The code for this option is 11. The minimum length for this option
     // is 4 octets, and the length MUST always be a multiple of 4.
     //
-    // Code   Len         Address 1               Address 2
+    //  Code   Len         Address 1               Address 2
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     // |  11 |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
@@ -197,7 +197,7 @@ pub enum DhcpOption {
     //
     // The code for this option is 12, and its minimum length is 1.
     //
-    // Code   Len                 Host Name
+    //  Code   Len                 Host Name
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     // |  12 |  n  |  h1 |  h2 |  h3 |  h4 |  h5 |  h6 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
@@ -210,7 +210,7 @@ pub enum DhcpOption {
     //
     // The code for this option is 13, and its length is 2.
     //
-    // Code   Len   File Size
+    //  Code   Len   File Size
     // +-----+-----+-----+-----+
     // |  13 |  2  |  l1 |  l2 |
     // +-----+-----+-----+-----+
@@ -224,7 +224,7 @@ pub enum DhcpOption {
     //
     // The code for this option is 14. Its minimum length is 1.
     //
-    // Code   Len      Dump File Pathname
+    //  Code   Len      Dump File Pathname
     // +-----+-----+-----+-----+-----+-----+---
     // |  14 |  n  |  n1 |  n2 |  n3 |  n4 | ...
     // +-----+-----+-----+-----+-----+-----+---
@@ -236,7 +236,7 @@ pub enum DhcpOption {
     //
     // The code for this option is 15. Its minimum length is 1.
     //
-    // Code   Len        Domain Name
+    //  Code   Len        Domain Name
     // +-----+-----+-----+-----+-----+-----+--
     // |  15 |  n  |  d1 |  d2 |  d3 |  d4 |  ...
     // +-----+-----+-----+-----+-----+-----+--
@@ -247,7 +247,7 @@ pub enum DhcpOption {
     //
     // The code for this option is 16 and its length is 4.
     //
-    // Code   Len    Swap Server Address
+    //  Code   Len    Swap Server Address
     // +-----+-----+-----+-----+-----+-----+
     // |  16 |  n  |  a1 |  a2 |  a3 |  a4 |
     // +-----+-----+-----+-----+-----+-----+
@@ -260,7 +260,7 @@ pub enum DhcpOption {
     //
     // The code for this option is 17. Its minimum length is 1.
     //
-    // Code   Len      Root Disk Pathname
+    //  Code   Len      Root Disk Pathname
     // +-----+-----+-----+-----+-----+-----+---
     // |  17 |  n  |  n1 |  n2 |  n3 |  n4 | ...
     // +-----+-----+-----+-----+-----+-----+---
@@ -279,11 +279,113 @@ pub enum DhcpOption {
     //
     // The code for this option is 18. Its minimum length is 1.
     //
-    // Code   Len      Extensions Pathname
+    //  Code   Len      Extensions Pathname
     // +-----+-----+-----+-----+-----+-----+---
     // |  18 |  n  |  n1 |  n2 |  n3 |  n4 | ...
     // +-----+-----+-----+-----+-----+-----+---
     ExtensionsPath(String),
+    // IP Forwarding Enable/Disable Option
+    //
+    // This option specifies whether the client should configure its IP
+    // layer for packet forwarding. A value of 0 means disable IP
+    // forwarding, and a value of 1 means enable IP forwarding.
+    //
+    // The code for this option is 19, and its length is 1.
+    //
+    //  Code   Len  Value
+    // +-----+-----+-----+
+    // |  19 |  1  | 0/1 |
+    // +-----+-----+-----+
+    IpForwarding(bool),
+    // Non-Local Source Routing Enable/Disable Option
+    //
+    // This option specifies whether the client should configure its IP
+    // layer to allow forwarding of datagrams with non-local source routes.
+    // A value of 0 means disallow forwarding of such datagrams, and a value
+    // of 1 means allow forwarding.
+    //
+    // The code for this option is 20, and its length is 1.
+    //
+    //  Code   Len  Value
+    // +-----+-----+-----+
+    // |  20 |  1  | 0/1 |
+    // +-----+-----+-----+
+    NonLocalSourceRouting(bool),
+    // Policy Filter Option
+    //
+    // This option specifies policy filters for non-local source routing.
+    // The filters consist of a list of IP addresses and masks which specify
+    // destination/mask pairs with which to filter incoming source routes.
+    //
+    // Any source routed datagram whose next-hop address does not match one
+    // of the filters should be discarded by the client.
+    //
+    // The code for this option is 21. The minimum length of this option is
+    // 8, and the length MUST be a multiple of 8.
+    //
+    //  Code   Len         Address 1                  Mask 1
+    // +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+    // |  21 |  n  |  a1 |  a2 |  a3 |  a4 |  m1 |  m2 |  m3 |  m4 |
+    // +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+    //         Address 2                  Mask 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+---
+    // |  a1 |  a2 |  a3 |  a4 |  m1 |  m2 |  m3 |  m4 | ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+---
+    PolicyFilter(Vec<(Ipv4Addr, Ipv4Addr)>),
+    // Maximum Datagram Reassembly Size
+    //
+    // This option specifies the maximum size datagram that the client
+    // should be prepared to reassemble. The size is specified as a 16-bit
+    // unsigned integer. The minimum value legal value is 576.
+    //
+    // The code for this option is 22, and its length is 2.
+    //
+    //  Code   Len      Size
+    // +-----+-----+-----+-----+
+    // |  22 |  2  |  s1 |  s2 |
+    // +-----+-----+-----+-----+
+    MaximumDatagramReassemblySize(u16),
+    // Default IP Time-to-live
+    //
+    // This option specifies the default time-to-live that the client should
+    // use on outgoing datagrams. The TTL is specified as an octet with a
+    // value between 1 and 255.
+    //
+    // The code for this option is 23, and its length is 1.
+    //
+    //  Code   Len   TTL
+    // +-----+-----+-----+
+    // |  23 |  1  | ttl |
+    // +-----+-----+-----+
+    DefaultIpTimeToLive(u8),
+    // Path MTU Aging Timeout Option
+    //
+    // This option specifies the timeout (in seconds) to use when aging Path
+    // MTU values discovered by the mechanism defined in RFC 1191. The
+    // timeout is specified as a 32-bit unsigned integer.
+    //
+    // The code for this option is 24, and its length is 4.
+    //
+    //  Code   Len           Timeout
+    // +-----+-----+-----+-----+-----+-----+
+    // |  24 |  4  |  t1 |  t2 |  t3 |  t4 |
+    // +-----+-----+-----+-----+-----+-----+
+    PathMtuAgingTimeout(u32),
+    // Path MTU Plateau Table Option
+    //
+    // This option specifies a table of MTU sizes to use when performing
+    // Path MTU Discovery as defined in RFC 1191. The table is formatted as
+    // a list of 16-bit unsigned integers, ordered from smallest to largest.
+    // The minimum MTU value cannot be smaller than 68.
+    //
+    // The code for this option is 25. Its minimum length is 2, and the
+    // length MUST be a multiple of 2.
+    //
+    //  Code   Len     Size 1      Size 2
+    // +-----+-----+-----+-----+-----+-----+---
+    // |  25 |  n  |  s1 |  s2 |  s1 |  s2 | ...
+    // +-----+-----+-----+-----+-----+-----+---
+    PathMtuPlateauTable(Vec<u16>),
 }
 
 impl DhcpOption {
@@ -437,6 +539,71 @@ impl DhcpOption {
                 result.push(18);
                 result.push(extensions_path.len() as u8);
                 result.extend_from_slice(extensions_path.as_bytes());
+                result
+            }
+            DhcpOption::IpForwarding(ip_forwarding) => {
+                let mut result = Vec::new();
+                result.push(19);
+                result.push(1);
+                result.push(if *ip_forwarding { 1 } else { 0 });
+                result
+            }
+            DhcpOption::NonLocalSourceRouting(non_local_source_routing) => {
+                let mut result = Vec::new();
+                result.push(20);
+                result.push(1);
+                result.push(if *non_local_source_routing { 1 } else { 0 });
+                result
+            }
+            DhcpOption::PolicyFilter(policy_filter) => {
+                let mut result = Vec::new();
+                result.push(21);
+                result.push((policy_filter.len() * 8) as u8);
+                for policy_filter in policy_filter {
+                    result.push(policy_filter.0.octets()[0]);
+                    result.push(policy_filter.0.octets()[1]);
+                    result.push(policy_filter.0.octets()[2]);
+                    result.push(policy_filter.0.octets()[3]);
+                    result.push(policy_filter.1.octets()[0]);
+                    result.push(policy_filter.1.octets()[1]);
+                    result.push(policy_filter.1.octets()[2]);
+                    result.push(policy_filter.1.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::MaximumDatagramReassemblySize(maximum_datagram_reassembly_size) => {
+                let mut result = Vec::new();
+                result.push(22);
+                result.push(2);
+                result.push(((maximum_datagram_reassembly_size >> 8) & 0xFF) as u8);
+                result.push((maximum_datagram_reassembly_size & 0xFF) as u8);
+                result
+            }
+            DhcpOption::DefaultIpTimeToLive(default_ip_ttl) => {
+                let mut result = Vec::new();
+                result.push(23);
+                result.push(1);
+                result.push(*default_ip_ttl);
+                result
+            }
+            DhcpOption::PathMtuAgingTimeout(path_mtu_aging_timeout) => {
+                let mut result = Vec::new();
+                result.push(24);
+                result.push(4);
+                result.push(((path_mtu_aging_timeout >> 24) & 0xFF) as u8);
+                result.push(((path_mtu_aging_timeout >> 16) & 0xFF) as u8);
+                result.push(((path_mtu_aging_timeout >> 8) & 0xFF) as u8);
+                result.push((path_mtu_aging_timeout & 0xFF) as u8);
+                result
+            }
+            DhcpOption::PathMtuPlateauTable(path_mtu_plateau_table) => {
+                let mut result = Vec::new();
+                result.push(25);
+                result.push((path_mtu_plateau_table.len() * 2) as u8);
+                for path_mtu_plateau in path_mtu_plateau_table {
+                    result.push(((path_mtu_plateau >> 8) & 0xFF) as u8);
+                    result.push((path_mtu_plateau & 0xFF) as u8);
+                }
                 result
             }
         }
@@ -1057,6 +1224,203 @@ impl DhcpOption {
                 };
 
                 Ok((DhcpOption::ExtensionsPath(path.to_string()), data))
+            }
+            19 => {
+                // Check that the data has at least one byte.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse IP forwarding".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse IP forwarding".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (value, data) = data.split_at(1);
+
+                Ok((DhcpOption::IpForwarding(value[0] == 1), data))
+            }
+            20 => {
+                // Check that the data has at least one byte.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse non-local source routing".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse non-local source routing".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (value, data) = data.split_at(1);
+
+                Ok((DhcpOption::NonLocalSourceRouting(value[0] == 1), data))
+            }
+            21 => {
+                // Check that the data cans at least hold a filter.
+                if data.len() < 9 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse policy filter".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse policy filter".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if len > data.len() as u8 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse policy filter".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 8.
+                if len % 8 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse policy filter".to_string(),
+                    ));
+                }
+
+                // Retrieve the filters.
+                let (filters, data) = data.split_at(len as usize);
+                let filters = filters
+                    .chunks_exact(8)
+                    .map(|filters| {
+                        (
+                            Ipv4Addr::new(filters[0], filters[1], filters[2], filters[3]),
+                            Ipv4Addr::new(filters[4], filters[5], filters[6], filters[7]),
+                        )
+                    })
+                    .collect::<Vec<(Ipv4Addr, Ipv4Addr)>>();
+
+                Ok((DhcpOption::PolicyFilter(filters), data))
+            }
+            22 => {
+                // Check that the data has at least 2 bytes.
+                if data.len() < 3 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse maximum datagram reassembly size".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse maximum datagram reassembly size".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (value, data) = data.split_at(2);
+
+                Ok((
+                    DhcpOption::MaximumDatagramReassemblySize(u16::from_be_bytes([
+                        value[0], value[1],
+                    ])),
+                    data,
+                ))
+            }
+            23 => {
+                // Check that the data has at least one byte.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse default IP TTL".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse default IP TTL".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (value, data) = data.split_at(1);
+
+                Ok((DhcpOption::DefaultIpTimeToLive(value[0]), data))
+            }
+            24 => {
+                // Check that the data has at least 5 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse path MTU aging timeout".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse path MTU aging timeout".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (value, data) = data.split_at(4);
+
+                Ok((
+                    DhcpOption::PathMtuAgingTimeout(u32::from_be_bytes([value[0], value[1] ,value[2], value[3]])),
+                    data,
+                ))
+            }
+            25 => {
+                // Check that the data has at least 2 bytes.
+                if data.len() < 3 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse path MTU plateau table".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse path MTU plateau table".to_string(),
+                        ))
+                    }
+                };
+
+                let (mtu_sizes, data) = data.split_at(len as usize);
+                let mtu_sizes = mtu_sizes
+                    .chunks_exact(2)
+                    .map(|filters| {
+                        u16::from_be_bytes([filters[0], filters[1]])
+                    })
+                    .collect::<Vec<u16>>();
+
+                Ok((DhcpOption::PathMtuPlateauTable(mtu_sizes), data))
             }
             _ => Err(DhcpError::ParsingError(format!(
                 "Unknown option code: {}",

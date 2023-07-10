@@ -498,12 +498,18 @@ mod tests {
     fn option_swap_server_deserialize() {
         let data = vec![16, 4, 192, 168, 0, 1];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::SwapServer(Ipv4Addr::new(192, 168, 0, 1)));
+        assert_eq!(
+            option,
+            DhcpOption::SwapServer(Ipv4Addr::new(192, 168, 0, 1))
+        );
         assert_eq!(data, &[]);
 
         let data = vec![16, 4, 192, 168, 0, 1, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::SwapServer(Ipv4Addr::new(192, 168, 0, 1)));
+        assert_eq!(
+            option,
+            DhcpOption::SwapServer(Ipv4Addr::new(192, 168, 0, 1))
+        );
         assert_eq!(data, &[255]);
     }
 
@@ -544,6 +550,210 @@ mod tests {
         let data = vec![18, 4, 112, 97, 116, 104, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
         assert_eq!(option, DhcpOption::ExtensionsPath("path".to_string()));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_ip_forwarding_serialize() {
+        let option = DhcpOption::IpForwarding(true);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![19, 1, 1]);
+
+        let option = DhcpOption::IpForwarding(false);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![19, 1, 0]);
+    }
+
+    #[test]
+    fn option_ip_forwarding_deserialize() {
+        let data = vec![19, 1, 1];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::IpForwarding(true));
+        assert_eq!(data, &[]);
+
+        let data = vec![19, 1, 0];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::IpForwarding(false));
+        assert_eq!(data, &[]);
+
+        let data = vec![19, 1, 0, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::IpForwarding(false));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_non_local_source_routing_serialize() {
+        let option = DhcpOption::NonLocalSourceRouting(true);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![20, 1, 1]);
+
+        let option = DhcpOption::NonLocalSourceRouting(false);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![20, 1, 0]);
+    }
+
+    #[test]
+    fn option_non_local_source_routing_deserialize() {
+        let data = vec![20, 1, 1];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::NonLocalSourceRouting(true));
+        assert_eq!(data, &[]);
+
+        let data = vec![20, 1, 0];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::NonLocalSourceRouting(false));
+        assert_eq!(data, &[]);
+
+        let data = vec![20, 1, 0, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::NonLocalSourceRouting(false));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_policy_filter_serialize() {
+        let option = DhcpOption::PolicyFilter(vec![
+            (
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(255, 255, 255, 0),
+            ),
+            (
+                Ipv4Addr::new(192, 168, 0, 2),
+                Ipv4Addr::new(255, 255, 255, 0),
+            ),
+        ]);
+        let serialized = option.serialize();
+        assert_eq!(
+            serialized,
+            vec![21, 16, 192, 168, 0, 1, 255, 255, 255, 0, 192, 168, 0, 2, 255, 255, 255, 0]
+        );
+    }
+
+    #[test]
+    fn option_policy_filter_deserialize() {
+        let data = vec![
+            21, 16, 192, 168, 0, 1, 255, 255, 255, 0, 192, 168, 0, 2, 255, 255, 255, 0,
+        ];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(
+            option,
+            DhcpOption::PolicyFilter(vec![
+                (
+                    Ipv4Addr::new(192, 168, 0, 1),
+                    Ipv4Addr::new(255, 255, 255, 0)
+                ),
+                (
+                    Ipv4Addr::new(192, 168, 0, 2),
+                    Ipv4Addr::new(255, 255, 255, 0)
+                ),
+            ])
+        );
+        assert_eq!(data, &[]);
+
+        let data = vec![
+            21, 16, 192, 168, 0, 1, 255, 255, 255, 0, 192, 168, 0, 2, 255, 255, 255, 0, 255,
+        ];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(
+            option,
+            DhcpOption::PolicyFilter(vec![
+                (
+                    Ipv4Addr::new(192, 168, 0, 1),
+                    Ipv4Addr::new(255, 255, 255, 0)
+                ),
+                (
+                    Ipv4Addr::new(192, 168, 0, 2),
+                    Ipv4Addr::new(255, 255, 255, 0)
+                ),
+            ])
+        );
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_max_datagram_reassembly_size_serialize() {
+        let option = DhcpOption::MaximumDatagramReassemblySize(1500);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![22, 2, 5, 220]);
+    }
+
+    #[test]
+    fn option_max_datagram_reassembly_size_deserialize() {
+        let data = vec![22, 2, 5, 220];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::MaximumDatagramReassemblySize(1500));
+        assert_eq!(data, &[]);
+
+        let data = vec![22, 2, 5, 220, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::MaximumDatagramReassemblySize(1500));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_default_ip_ttl_serialize() {
+        let option = DhcpOption::DefaultIpTimeToLive(64);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![23, 1, 64]);
+    }
+
+    #[test]
+    fn option_default_ip_ttl_deserialize() {
+        let data = vec![23, 1, 64];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::DefaultIpTimeToLive(64));
+        assert_eq!(data, &[]);
+
+        let data = vec![23, 1, 64, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::DefaultIpTimeToLive(64));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_path_mtu_aging_timeout_serialize() {
+        let option = DhcpOption::PathMtuAgingTimeout(1500);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![24, 4, 0, 0, 5, 220]);
+    }
+
+    #[test]
+    fn option_path_mtu_aging_timeout_deserialize() {
+        let data = vec![24, 4, 0, 0, 5, 220];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::PathMtuAgingTimeout(1500));
+        assert_eq!(data, &[]);
+
+        let data = vec![24, 4, 0, 0, 5, 220, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::PathMtuAgingTimeout(1500));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_path_mtu_plateau_table_serialize() {
+        let option = DhcpOption::PathMtuPlateauTable(vec![1500, 1499]);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![25, 4, 5, 220, 5, 219]);
+    }
+
+    #[test]
+    fn option_path_mtu_plateau_table_deserialize() {
+        let data = vec![25, 4, 5, 220, 5, 219];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(
+            option,
+            DhcpOption::PathMtuPlateauTable(vec![1500, 1499])
+        );
+        assert_eq!(data, &[]);
+
+        let data = vec![25, 4, 5, 220, 5, 219, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(
+            option,
+            DhcpOption::PathMtuPlateauTable(vec![1500, 1499])
+        );
         assert_eq!(data, &[255]);
     }
 }
