@@ -549,6 +549,49 @@ pub enum DhcpOption {
     // |  36 |  1  | 0/1 |
     // +-----+-----+-----+
     EthernetEncapsulation(bool),
+    // TCP Default TTL Option
+    //
+    // This option specifies the default TTL that the client should use when
+    // sending TCP segments. The value is represented as an 8-bit unsigned
+    // integer. The minimum value is 1.
+    //
+    // The code for this option is 37, and its length is 1.
+    //
+    //  Code   Len   TTL
+    // +-----+-----+-----+
+    // |  37 |  1  |  n  |
+    // +-----+-----+-----+
+    TcpDefaultTtl(u8),
+    // TCP Keepalive Interval Option
+    //
+    // This option specifies the interval (in seconds) that the client TCP
+    // should wait before sending a keepalive message on a TCP connection.
+    // The time is specified as a 32-bit unsigned integer.  A value of zero
+    // indicates that the client should not generate keepalive messages on
+    // connections unless specifically requested by an application.
+    //
+    // The code for this option is 38, and its length is 4.
+    //
+    //  Code   Len           Time
+    // +-----+-----+-----+-----+-----+-----+
+    // |  38 |  4  |  t1 |  t2 |  t3 |  t4 |
+    // +-----+-----+-----+-----+-----+-----+
+    TcpKeepaliveInterval(u32),
+    // TCP Keepalive Garbage Option
+    //
+    // This option specifies the whether or not the client should send TCP
+    // keepalive messages with a octet of garbage for compatibility with
+    // older implementations.  A value of 0 indicates that a garbage octet
+    // should not be sent. A value of 1 indicates that a garbage octet
+    // should be sent.
+    //
+    // The code for this option is 39, and its length is 1.
+    //
+    //  Code   Len  Value
+    // +-----+-----+-----+
+    // |  39 |  1  | 0/1 |
+    // +-----+-----+-----+
+    TcpKeepaliveGarbage(bool),
 }
 
 impl DhcpOption {
@@ -857,6 +900,30 @@ impl DhcpOption {
                 result.push(36);
                 result.push(1);
                 result.push(if *ethernet_encapsulation { 1 } else { 0 });
+                result
+            }
+            DhcpOption::TcpDefaultTtl(tcp_default_ttl) => {
+                let mut result = Vec::new();
+                result.push(37);
+                result.push(1);
+                result.push(*tcp_default_ttl);
+                result
+            }
+            DhcpOption::TcpKeepaliveInterval(tcp_keepalive_interval) => {
+                let mut result = Vec::new();
+                result.push(38);
+                result.push(4);
+                result.push(((tcp_keepalive_interval >> 24) & 0xFF) as u8);
+                result.push(((tcp_keepalive_interval >> 16) & 0xFF) as u8);
+                result.push(((tcp_keepalive_interval >> 8) & 0xFF) as u8);
+                result.push((tcp_keepalive_interval & 0xFF) as u8);
+                result
+            }
+            DhcpOption::TcpKeepaliveGarbage(tcp_keepalive_garbage) => {
+                let mut result = Vec::new();
+                result.push(39);
+                result.push(1);
+                result.push(if *tcp_keepalive_garbage { 1 } else { 0 });
                 result
             }
         }
@@ -1830,7 +1897,7 @@ impl DhcpOption {
                 }
 
                 // Retrieve the length of the option.
-                let (len, data) = match data.split_first() {
+                let (_len, data) = match data.split_first() {
                     Some((len, data)) => (*len, data),
                     None => {
                         return Err(DhcpError::ParsingError(
@@ -1963,6 +2030,84 @@ impl DhcpOption {
 
                 Ok((
                     DhcpOption::EthernetEncapsulation(value[0] != 0),
+                    data,
+                ))
+            }
+            37 => {
+                // Check that the data has at least 1 bytes.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse tcp default ttl".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse tcp default ttl".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (ttl, data) = data.split_at(1);
+
+                Ok((
+                    DhcpOption::TcpDefaultTtl(ttl[0]),
+                    data,
+                ))
+            }
+            38 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse tcp keepalive interval".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse tcp keepalive interval".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (interval, data) = data.split_at(4);
+
+                Ok((
+                    DhcpOption::TcpKeepaliveInterval(u32::from_be_bytes([interval[0], interval[1], interval[2], interval[3]])),
+                    data,
+                ))
+            }
+            39 => {
+                // Check that the data has at least 1 bytes.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse tcp keepalive garbage".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse tcp keepalive garbage".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (garbage, data) = data.split_at(1);
+
+                Ok((
+                    DhcpOption::TcpKeepaliveGarbage(garbage[0] != 0),
                     data,
                 ))
             }

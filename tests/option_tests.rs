@@ -1078,4 +1078,73 @@ mod tests {
         assert_eq!(option, DhcpOption::EthernetEncapsulation(false));
         assert_eq!(data, &[255]);
     }
+
+    #[test]
+    fn option_tcp_default_ttl_serialize() {
+        let option = DhcpOption::TcpDefaultTtl(123);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![37, 1, 123]);
+    }
+
+    #[test]
+    fn option_tcp_default_ttl_deserialize() {
+        let data = vec![37, 1, 123];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::TcpDefaultTtl(123));
+        assert_eq!(data, &[]);
+
+        let data = vec![37, 1, 123, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::TcpDefaultTtl(123));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_tcp_keepalive_interval_serialize() {
+        let option = DhcpOption::TcpKeepaliveInterval(1234);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![38, 4, 0, 0, 4, 210]);
+    }
+
+    #[test]
+    fn option_tcp_keepalive_interval_deserialize() {
+        let data = vec![38, 4, 0, 0, 4, 210];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::TcpKeepaliveInterval(1234));
+        assert_eq!(data, &[]);
+
+        let data = vec![38, 4, 0, 0, 4, 210, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::TcpKeepaliveInterval(1234));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_tcp_keepalive_garbage_serialize() {
+        let option = DhcpOption::TcpKeepaliveGarbage(true);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![39, 1, 1]);
+
+        let option = DhcpOption::TcpKeepaliveGarbage(false);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![39, 1, 0]);
+    }
+
+    #[test]
+    fn option_tcp_keepalive_garbage_deserialize() {
+        let data = vec![39, 1, 1];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::TcpKeepaliveGarbage(true));
+        assert_eq!(data, &[]);
+
+        let data = vec![39, 1, 0];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::TcpKeepaliveGarbage(false));
+        assert_eq!(data, &[]);
+
+        let data = vec![39, 1, 0, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::TcpKeepaliveGarbage(false));
+        assert_eq!(data, &[255]);
+    }
 }
