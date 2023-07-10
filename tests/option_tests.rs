@@ -1000,4 +1000,82 @@ mod tests {
         );
         assert_eq!(data, &[255]);
     }
+
+    #[test]
+    fn option_trailer_encapsulation_serialize() {
+        let option = DhcpOption::TrailerEncapsulation(true);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![34, 1, 1]);
+
+        let option = DhcpOption::TrailerEncapsulation(false);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![34, 1, 0]);
+    }
+
+    #[test]
+    fn option_trailer_encapsulation_deserialize() {
+        let data = vec![34, 1, 1];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::TrailerEncapsulation(true));
+        assert_eq!(data, &[]);
+
+        let data = vec![34, 1, 0];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::TrailerEncapsulation(false));
+        assert_eq!(data, &[]);
+
+        let data = vec![34, 1, 0, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::TrailerEncapsulation(false));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_arp_cache_timeout_serialize() {
+        let option = DhcpOption::ArpCacheTimeout(1234);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![35, 4, 0, 0, 4, 210]);
+    }
+
+    #[test]
+    fn option_arp_cache_timeout_deserialize() {
+        let data = vec![35, 4, 0, 0, 4, 210];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::ArpCacheTimeout(1234));
+        assert_eq!(data, &[]);
+
+        let data = vec![35, 4, 0, 0, 4, 210, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::ArpCacheTimeout(1234));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_ethernet_encapsulation_serialize() {
+        let option = DhcpOption::EthernetEncapsulation(true);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![36, 1, 1]);
+
+        let option = DhcpOption::EthernetEncapsulation(false);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![36, 1, 0]);
+    }
+
+    #[test]
+    fn option_ethernet_encapsulation_deserialize() {
+        let data = vec![36, 1, 1];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::EthernetEncapsulation(true));
+        assert_eq!(data, &[]);
+
+        let data = vec![36, 1, 0];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::EthernetEncapsulation(false));
+        assert_eq!(data, &[]);
+
+        let data = vec![36, 1, 0, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::EthernetEncapsulation(false));
+        assert_eq!(data, &[255]);
+    }
 }

@@ -508,6 +508,47 @@ pub enum DhcpOption {
     // |  d1 |  d2 |  d3 |  d4 |  r1 |  r2 |  r3 |  r4 | ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+---
     StaticRoute(Vec<(Ipv4Addr, Ipv4Addr)>),
+    // Trailer Encapsulation Option
+    //
+    // This option specifies whether or not the client should negotiate the
+    // use of trailers (RFC 893 [14]) when using the ARP protocol.  A value
+    // of 0 indicates that the client should not attempt to use trailers.  A
+    // value of 1 means that the client should attempt to use trailers.
+    //
+    // The code for this option is 34, and its length is 1.
+    //
+    //  Code   Len  Value
+    // +-----+-----+-----+
+    // |  34 |  1  | 0/1 |
+    // +-----+-----+-----+
+    TrailerEncapsulation(bool),
+    // ARP Cache Timeout Option
+    //
+    // This option specifies the timeout in seconds for ARP cache entries.
+    // The time is specified as a 32-bit unsigned integer.
+    //
+    // The code for this option is 35, and its length is 4.
+    //
+    //  Code   Len           Time
+    // +-----+-----+-----+-----+-----+-----+
+    // |  35 |  4  |  t1 |  t2 |  t3 |  t4 |
+    // +-----+-----+-----+-----+-----+-----+
+    ArpCacheTimeout(u32),
+    // Ethernet Encapsulation Option
+    //
+    // This option specifies whether or not the client should use Ethernet
+    // Version 2 (RFC 894) or IEEE 802.3 (RFC 1042) encapsulation
+    // if the interface is an Ethernet. A value of 0 indicates that the
+    // client should use RFC 894 encapsulation. A value of 1 means that the
+    // client should use RFC 1042 encapsulation.
+    //
+    // The code for this option is 36, and its length is 1.
+    //
+    //  Code   Len  Value
+    // +-----+-----+-----+
+    // |  36 |  1  | 0/1 |
+    // +-----+-----+-----+
+    EthernetEncapsulation(bool),
 }
 
 impl DhcpOption {
@@ -792,6 +833,30 @@ impl DhcpOption {
                     result.push(static_route.1.octets()[2]);
                     result.push(static_route.1.octets()[3]);
                 }
+                result
+            }
+            DhcpOption::TrailerEncapsulation(trailer_encapsulation) => {
+                let mut result = Vec::new();
+                result.push(34);
+                result.push(1);
+                result.push(if *trailer_encapsulation { 1 } else { 0 });
+                result
+            }
+            DhcpOption::ArpCacheTimeout(arp_cache_timeout) => {
+                let mut result = Vec::new();
+                result.push(35);
+                result.push(4);
+                result.push(((arp_cache_timeout >> 24) & 0xFF) as u8);
+                result.push(((arp_cache_timeout >> 16) & 0xFF) as u8);
+                result.push(((arp_cache_timeout >> 8) & 0xFF) as u8);
+                result.push((arp_cache_timeout & 0xFF) as u8);
+                result
+            }
+            DhcpOption::EthernetEncapsulation(ethernet_encapsulation) => {
+                let mut result = Vec::new();
+                result.push(36);
+                result.push(1);
+                result.push(if *ethernet_encapsulation { 1 } else { 0 });
                 result
             }
         }
@@ -1822,6 +1887,84 @@ impl DhcpOption {
                     .collect::<Vec<(Ipv4Addr, Ipv4Addr)>>();
 
                 Ok((DhcpOption::StaticRoute(routes), data))
+            }
+            34 => {
+                // Check that the data has at least 1 bytes.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse trailer encapsulation".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse trailer encapsulation".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (value, data) = data.split_at(1);
+
+                Ok((
+                    DhcpOption::TrailerEncapsulation(value[0] != 0),
+                    data,
+                ))
+            }
+            35 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse arp cache timeout".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse arp cache timeout".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (timeout, data) = data.split_at(4);
+                
+                Ok((
+                    DhcpOption::ArpCacheTimeout(u32::from_be_bytes([timeout[0], timeout[1], timeout[2], timeout[3]])),
+                    data,
+                ))
+            }
+            36 => {
+                // Check that the data has at least 1 bytes.
+                if data.len() < 2 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse ethernet encapsulation".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (_len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse ethernet encapsulation".to_string(),
+                        ))
+                    }
+                };
+
+                // Retrieve the value.
+                let (value, data) = data.split_at(1);
+
+                Ok((
+                    DhcpOption::EthernetEncapsulation(value[0] != 0),
+                    data,
+                ))
             }
             _ => Err(DhcpError::ParsingError(format!(
                 "Unknown option code: {}",
