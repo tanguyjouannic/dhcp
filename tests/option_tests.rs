@@ -1454,4 +1454,104 @@ mod tests {
         assert_eq!(option, DhcpOption::NetworkNewsTransportProtocolServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
         assert_eq!(data, &[255]);
     }
+
+    #[test]
+    fn option_world_wide_web_server_serialize() {
+        let option = DhcpOption::DefaultWorldWideWebServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![72, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
+    }
+
+    #[test]
+    fn option_world_wide_web_server_deserialize() {
+        let data = vec![72, 8, 192, 168, 0, 1, 192, 168, 0, 2];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::DefaultWorldWideWebServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[]);
+
+        let data = vec![72, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::DefaultWorldWideWebServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_default_finger_server_serialize() {
+        let option = DhcpOption::DefaultFingerServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![73, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
+    }
+
+    #[test]
+    fn option_default_finger_server_deserialize() {
+        let data = vec![73, 8, 192, 168, 0, 1, 192, 168, 0, 2];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::DefaultFingerServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[]);
+
+        let data = vec![73, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::DefaultFingerServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_default_internet_relay_chat_server_serialize() {
+        let option = DhcpOption::DefaultInternetRelayChatServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![74, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
+    }
+
+    #[test]
+    fn option_default_internet_relay_chat_server_deserialize() {
+        let data = vec![74, 8, 192, 168, 0, 1, 192, 168, 0, 2];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::DefaultInternetRelayChatServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[]);
+
+        let data = vec![74, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::DefaultInternetRelayChatServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_street_talk_server_serialize() {
+        let option = DhcpOption::StreetTalkServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![75, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
+    }
+
+    #[test]
+    fn option_street_talk_server_deserialize() {
+        let data = vec![75, 8, 192, 168, 0, 1, 192, 168, 0, 2];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::StreetTalkServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[]);
+
+        let data = vec![75, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::StreetTalkServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_street_talk_directory_assistance_server_serialize() {
+        let option = DhcpOption::StreetTalkDirectoryAssistanceServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![76, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
+    }
+
+    #[test]
+    fn option_street_talk_directory_assistance_server_deserialize() {
+        let data = vec![76, 8, 192, 168, 0, 1, 192, 168, 0, 2];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::StreetTalkDirectoryAssistanceServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[]);
+
+        let data = vec![76, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::StreetTalkDirectoryAssistanceServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(data, &[255]);
+    }
 }

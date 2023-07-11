@@ -874,6 +874,60 @@ pub enum DhcpOption {
     // | 72  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     DefaultWorldWideWebServer(Vec<Ipv4Addr>),
+    // Default Finger Server Option
+    //
+    // The Finger server option specifies a list of Finger available to the
+    // client. Servers SHOULD be listed in order of preference.
+    //
+    // The code for the Finger server option is 73. The minimum length for
+    // this option is 4 octets, and the length MUST always be a multiple of
+    // 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    // | 73  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    DefaultFingerServer(Vec<Ipv4Addr>),
+    // Default Internet Relay Chat (IRC) Server Option
+    //
+    // The IRC server option specifies a list of IRC available to the
+    // client. Servers SHOULD be listed in order of preference.
+    //
+    // The code for the IRC server option is 74. The minimum length for
+    // this option is 4 octets, and the length MUST always be a multiple of
+    // 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    // | 74  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    DefaultInternetRelayChatServer(Vec<Ipv4Addr>),
+    // StreetTalk Server Option
+    //
+    // The StreetTalk server option specifies a list of StreetTalk servers
+    // available to the client. Servers SHOULD be listed in order of
+    // preference.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    // | 75  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    StreetTalkServer(Vec<Ipv4Addr>),
+    // StreetTalk Directory Assistance (STDA) Server Option
+
+    // The StreetTalk Directory Assistance (STDA) server option specifies a
+    // list of STDA servers available to the client. Servers SHOULD be
+    // listed in order of preference.
+    //
+    // The code for the StreetTalk Directory Assistance server option is 76.
+    // The minimum length for this option is 4 octets, and the length MUST
+    // always be a multiple of 4.
+    //
+    //  Code   Len         Address 1               Address 2
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    // | 76  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
+    // +-----+-----+-----+-----+-----+-----+-----+-----+--
+    StreetTalkDirectoryAssistanceServer(Vec<Ipv4Addr>),
 }
 
 impl DhcpOption {
@@ -1402,6 +1456,57 @@ impl DhcpOption {
                     result.push(default_world_wide_web_server.octets()[1]);
                     result.push(default_world_wide_web_server.octets()[2]);
                     result.push(default_world_wide_web_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::DefaultFingerServer(default_finger_server) => {
+                let mut result = Vec::new();
+                result.push(73);
+                result.push((default_finger_server.len() * 4) as u8);
+                for default_finger_server in default_finger_server {
+                    result.push(default_finger_server.octets()[0]);
+                    result.push(default_finger_server.octets()[1]);
+                    result.push(default_finger_server.octets()[2]);
+                    result.push(default_finger_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::DefaultInternetRelayChatServer(default_internet_relay_chat_server) => {
+                let mut result = Vec::new();
+                result.push(74);
+                result.push((default_internet_relay_chat_server.len() * 4) as u8);
+                for default_internet_relay_chat_server in default_internet_relay_chat_server {
+                    result.push(default_internet_relay_chat_server.octets()[0]);
+                    result.push(default_internet_relay_chat_server.octets()[1]);
+                    result.push(default_internet_relay_chat_server.octets()[2]);
+                    result.push(default_internet_relay_chat_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::StreetTalkServer(street_talk_server) => {
+                let mut result = Vec::new();
+                result.push(75);
+                result.push((street_talk_server.len() * 4) as u8);
+                for street_talk_server in street_talk_server {
+                    result.push(street_talk_server.octets()[0]);
+                    result.push(street_talk_server.octets()[1]);
+                    result.push(street_talk_server.octets()[2]);
+                    result.push(street_talk_server.octets()[3]);
+                }
+                result
+            }
+            DhcpOption::StreetTalkDirectoryAssistanceServer(
+                street_talk_directory_assistance_server,
+            ) => {
+                let mut result = Vec::new();
+                result.push(76);
+                result.push((street_talk_directory_assistance_server.len() * 4) as u8);
+                for street_talk_directory_assistance_server in street_talk_directory_assistance_server
+                {
+                    result.push(street_talk_directory_assistance_server.octets()[0]);
+                    result.push(street_talk_directory_assistance_server.octets()[1]);
+                    result.push(street_talk_directory_assistance_server.octets()[2]);
+                    result.push(street_talk_directory_assistance_server.octets()[3]);
                 }
                 result
             }
@@ -3274,6 +3379,186 @@ impl DhcpOption {
 
                 Ok((
                     DhcpOption::DefaultWorldWideWebServer(servers),
+                    data,
+                ))
+            }
+            73 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Default Finger Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse Default Finger Server servers".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Default Finger Server servers".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Default Finger Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::DefaultFingerServer(servers),
+                    data,
+                ))
+            }
+            74 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Default Internet Relay Chat Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse Default Internet Relay Chat Server servers".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Default Internet Relay Chat Server servers".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Default Internet Relay Chat Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::DefaultInternetRelayChatServer(servers),
+                    data,
+                ))
+            }
+            75 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse StreetTalk Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse StreetTalk Server servers".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse StreetTalk Server servers".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse StreetTalk Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::StreetTalkServer(servers),
+                    data,
+                ))
+            }
+            76 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse StreetTalk Directory Assistance Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse StreetTalk Directory Assistance Server servers".to_string(),
+                        ))
+                    }
+                };
+
+                // Verify that the length is possible.
+                if data.len() < len as usize {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse StreetTalk Directory Assistance Server servers".to_string(),
+                    ));
+                }
+
+                // Verify that the length is a multiple of 4.
+                if len % 4 != 0 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse StreetTalk Directory Assistance Server servers".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (servers, data) = data.split_at(len as usize);
+
+                let servers = servers
+                    .chunks_exact(4)
+                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .collect::<Vec<Ipv4Addr>>();
+
+                Ok((
+                    DhcpOption::StreetTalkDirectoryAssistanceServer(servers),
                     data,
                 ))
             }
