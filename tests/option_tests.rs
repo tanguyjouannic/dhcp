@@ -956,9 +956,7 @@ mod tests {
         let serialized = option.serialize();
         assert_eq!(
             serialized,
-            vec![
-                33, 16, 192, 168, 0, 1, 192, 168, 0, 100, 192, 168, 0, 2, 192, 168, 0, 200
-            ]
+            vec![33, 16, 192, 168, 0, 1, 192, 168, 0, 100, 192, 168, 0, 2, 192, 168, 0, 200]
         );
     }
 
@@ -1152,7 +1150,10 @@ mod tests {
 
     #[test]
     fn option_network_information_servers_serialize() {
-        let option = DhcpOption::NetworkInformationServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::NetworkInformationServers(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![41, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1161,18 +1162,33 @@ mod tests {
     fn option_network_information_servers_deserialize() {
         let data = vec![41, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetworkInformationServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetworkInformationServers(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![41, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetworkInformationServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetworkInformationServers(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_network_time_protocol_servers_serialize() {
-        let option = DhcpOption::NetworkTimeProtocolServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::NetworkTimeProtocolServers(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![42, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1181,12 +1197,24 @@ mod tests {
     fn option_network_time_protocol_servers_deserialize() {
         let data = vec![42, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetworkTimeProtocolServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetworkTimeProtocolServers(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![42, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetworkTimeProtocolServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetworkTimeProtocolServers(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
@@ -1201,18 +1229,27 @@ mod tests {
     fn option_vendor_specific_information_deserialize() {
         let data = vec![43, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::VendorSpecificInformation(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+        assert_eq!(
+            option,
+            DhcpOption::VendorSpecificInformation(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![43, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::VendorSpecificInformation(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+        assert_eq!(
+            option,
+            DhcpOption::VendorSpecificInformation(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_netbios_over_tcpip_name_server_serialize() {
-        let option = DhcpOption::NetBiosOverTcpIpNameServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::NetBiosOverTcpIpNameServer(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![44, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1221,18 +1258,33 @@ mod tests {
     fn option_netbios_over_tcpip_name_server_deserialize() {
         let data = vec![44, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetBiosOverTcpIpNameServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetBiosOverTcpIpNameServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![44, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetBiosOverTcpIpNameServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetBiosOverTcpIpNameServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_netbios_over_tcpip_datagram_distribution_server_serialize() {
-        let option = DhcpOption::NetBiosOverTcpIpDatagramDistributionServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::NetBiosOverTcpIpDatagramDistributionServer(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![45, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1241,12 +1293,24 @@ mod tests {
     fn option_netbios_over_tcpip_datagram_distribution_server_deserialize() {
         let data = vec![45, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetBiosOverTcpIpDatagramDistributionServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetBiosOverTcpIpDatagramDistributionServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![45, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetBiosOverTcpIpDatagramDistributionServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetBiosOverTcpIpDatagramDistributionServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
@@ -1261,12 +1325,18 @@ mod tests {
     fn option_netbios_over_tcpip_node_type_deserialize() {
         let data = vec![46, 1, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetBiosOverTcpIpNodeType(NetBiosOverTcpIpNodeType::PNode));
+        assert_eq!(
+            option,
+            DhcpOption::NetBiosOverTcpIpNodeType(NetBiosOverTcpIpNodeType::PNode)
+        );
         assert_eq!(data, &[]);
 
         let data = vec![46, 1, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetBiosOverTcpIpNodeType(NetBiosOverTcpIpNodeType::PNode));
+        assert_eq!(
+            option,
+            DhcpOption::NetBiosOverTcpIpNodeType(NetBiosOverTcpIpNodeType::PNode)
+        );
         assert_eq!(data, &[255]);
     }
 
@@ -1281,18 +1351,27 @@ mod tests {
     fn option_netbios_over_tcpip_scope_deserialize() {
         let data = vec![47, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetBiosOverTcpIpScope(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+        assert_eq!(
+            option,
+            DhcpOption::NetBiosOverTcpIpScope(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![47, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetBiosOverTcpIpScope(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+        assert_eq!(
+            option,
+            DhcpOption::NetBiosOverTcpIpScope(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        );
         assert_eq!(data, &[255]);
-    }   
+    }
 
     #[test]
     fn option_x_window_system_font_server_serialize() {
-        let option = DhcpOption::XWindowSystemFontServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::XWindowSystemFontServer(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![48, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1301,18 +1380,33 @@ mod tests {
     fn option_x_window_system_font_server_deserialize() {
         let data = vec![48, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::XWindowSystemFontServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::XWindowSystemFontServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![48, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::XWindowSystemFontServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::XWindowSystemFontServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_x_window_system_display_manager_serialize() {
-        let option = DhcpOption::XWindowSystemDisplayManager(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::XWindowSystemDisplayManager(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![49, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1321,12 +1415,24 @@ mod tests {
     fn option_x_window_system_display_manager_deserialize() {
         let data = vec![49, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::XWindowSystemDisplayManager(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::XWindowSystemDisplayManager(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![49, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::XWindowSystemDisplayManager(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::XWindowSystemDisplayManager(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
@@ -1341,18 +1447,27 @@ mod tests {
     fn option_network_information_service_plus_domain_deserialize() {
         let data = vec![64, 6, 100, 111, 109, 97, 105, 110];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetworkInformationServicePlusDomain("domain".to_string()));
+        assert_eq!(
+            option,
+            DhcpOption::NetworkInformationServicePlusDomain("domain".to_string())
+        );
         assert_eq!(data, &[]);
 
         let data = vec![64, 6, 100, 111, 109, 97, 105, 110, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetworkInformationServicePlusDomain("domain".to_string()));
+        assert_eq!(
+            option,
+            DhcpOption::NetworkInformationServicePlusDomain("domain".to_string())
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_network_information_service_plus_servers_serialize() {
-        let option = DhcpOption::NetworkInformationServicePlusServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::NetworkInformationServicePlusServers(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![65, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1361,18 +1476,33 @@ mod tests {
     fn option_network_information_service_plus_servers_deserialize() {
         let data = vec![65, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetworkInformationServicePlusServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetworkInformationServicePlusServers(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![65, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetworkInformationServicePlusServers(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetworkInformationServicePlusServers(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_mobile_ip_home_agent_serialize() {
-        let option = DhcpOption::MobileIpHomeAgent(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::MobileIpHomeAgent(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![68, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1386,18 +1516,33 @@ mod tests {
 
         let data = vec![68, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::MobileIpHomeAgent(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::MobileIpHomeAgent(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![68, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::MobileIpHomeAgent(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::MobileIpHomeAgent(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_simple_mail_transport_protocol_serialize() {
-        let option = DhcpOption::SimpleMailTransportProtocolServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::SimpleMailTransportProtocolServer(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![69, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1406,18 +1551,33 @@ mod tests {
     fn option_simple_mail_transport_protocol_deserialize() {
         let data = vec![69, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::SimpleMailTransportProtocolServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::SimpleMailTransportProtocolServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![69, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::SimpleMailTransportProtocolServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::SimpleMailTransportProtocolServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_post_office_protocol_server_serialize() {
-        let option = DhcpOption::PostOfficeProtocolServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::PostOfficeProtocolServer(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![70, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1426,18 +1586,33 @@ mod tests {
     fn option_post_office_protocol_server_deserialize() {
         let data = vec![70, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::PostOfficeProtocolServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::PostOfficeProtocolServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![70, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::PostOfficeProtocolServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::PostOfficeProtocolServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_network_news_transport_protocol_serialize() {
-        let option = DhcpOption::NetworkNewsTransportProtocolServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::NetworkNewsTransportProtocolServer(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![71, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1446,18 +1621,33 @@ mod tests {
     fn option_network_news_transport_protocol_deserialize() {
         let data = vec![71, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetworkNewsTransportProtocolServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetworkNewsTransportProtocolServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![71, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::NetworkNewsTransportProtocolServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::NetworkNewsTransportProtocolServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_world_wide_web_server_serialize() {
-        let option = DhcpOption::DefaultWorldWideWebServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::DefaultWorldWideWebServer(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![72, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1466,18 +1656,33 @@ mod tests {
     fn option_world_wide_web_server_deserialize() {
         let data = vec![72, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::DefaultWorldWideWebServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::DefaultWorldWideWebServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![72, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::DefaultWorldWideWebServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::DefaultWorldWideWebServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_default_finger_server_serialize() {
-        let option = DhcpOption::DefaultFingerServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::DefaultFingerServer(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![73, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1486,18 +1691,33 @@ mod tests {
     fn option_default_finger_server_deserialize() {
         let data = vec![73, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::DefaultFingerServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::DefaultFingerServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![73, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::DefaultFingerServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::DefaultFingerServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_default_internet_relay_chat_server_serialize() {
-        let option = DhcpOption::DefaultInternetRelayChatServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::DefaultInternetRelayChatServer(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![74, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1506,18 +1726,33 @@ mod tests {
     fn option_default_internet_relay_chat_server_deserialize() {
         let data = vec![74, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::DefaultInternetRelayChatServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::DefaultInternetRelayChatServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![74, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::DefaultInternetRelayChatServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::DefaultInternetRelayChatServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_street_talk_server_serialize() {
-        let option = DhcpOption::StreetTalkServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::StreetTalkServer(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![75, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1526,18 +1761,33 @@ mod tests {
     fn option_street_talk_server_deserialize() {
         let data = vec![75, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::StreetTalkServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::StreetTalkServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![75, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::StreetTalkServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::StreetTalkServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[255]);
     }
 
     #[test]
     fn option_street_talk_directory_assistance_server_serialize() {
-        let option = DhcpOption::StreetTalkDirectoryAssistanceServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]);
+        let option = DhcpOption::StreetTalkDirectoryAssistanceServer(vec![
+            Ipv4Addr::new(192, 168, 0, 1),
+            Ipv4Addr::new(192, 168, 0, 2),
+        ]);
         let serialized = option.serialize();
         assert_eq!(serialized, vec![76, 8, 192, 168, 0, 1, 192, 168, 0, 2]);
     }
@@ -1546,12 +1796,70 @@ mod tests {
     fn option_street_talk_directory_assistance_server_deserialize() {
         let data = vec![76, 8, 192, 168, 0, 1, 192, 168, 0, 2];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::StreetTalkDirectoryAssistanceServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::StreetTalkDirectoryAssistanceServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
         assert_eq!(data, &[]);
 
         let data = vec![76, 8, 192, 168, 0, 1, 192, 168, 0, 2, 255];
         let (option, data) = DhcpOption::deserialize(&data).unwrap();
-        assert_eq!(option, DhcpOption::StreetTalkDirectoryAssistanceServer(vec![Ipv4Addr::new(192, 168, 0, 1), Ipv4Addr::new(192, 168, 0, 2)]));
+        assert_eq!(
+            option,
+            DhcpOption::StreetTalkDirectoryAssistanceServer(vec![
+                Ipv4Addr::new(192, 168, 0, 1),
+                Ipv4Addr::new(192, 168, 0, 2)
+            ])
+        );
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_requested_ip_address_serialize() {
+        let option = DhcpOption::RequestedIpAddress(Ipv4Addr::new(192, 168, 0, 1));
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![50, 4, 192, 168, 0, 1]);
+    }
+
+    #[test]
+    fn option_requested_ip_address_deserialize() {
+        let data = vec![50, 4, 192, 168, 0, 1];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(
+            option,
+            DhcpOption::RequestedIpAddress(Ipv4Addr::new(192, 168, 0, 1))
+        );
+        assert_eq!(data, &[]);
+
+        let data = vec![50, 4, 192, 168, 0, 1, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(
+            option,
+            DhcpOption::RequestedIpAddress(Ipv4Addr::new(192, 168, 0, 1))
+        );
+        assert_eq!(data, &[255]);
+    }
+
+    #[test]
+    fn option_ip_address_lease_time_serialize() {
+        let option = DhcpOption::IpAddressLeaseTime(1234567890);
+        let serialized = option.serialize();
+        assert_eq!(serialized, vec![51, 4, 73, 150, 2, 210]);
+    }
+
+    #[test]
+    fn option_ip_address_lease_time_deserialize() {
+        let data = vec![51, 4, 73, 150, 2, 210];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::IpAddressLeaseTime(1234567890));
+        assert_eq!(data, &[]);
+
+        let data = vec![51, 4, 73, 150, 2, 210, 255];
+        let (option, data) = DhcpOption::deserialize(&data).unwrap();
+        assert_eq!(option, DhcpOption::IpAddressLeaseTime(1234567890));
         assert_eq!(data, &[255]);
     }
 }

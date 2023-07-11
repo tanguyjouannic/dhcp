@@ -928,6 +928,35 @@ pub enum DhcpOption {
     // | 76  |  n  |  a1 |  a2 |  a3 |  a4 |  a1 |  a2 |  ...
     // +-----+-----+-----+-----+-----+-----+-----+-----+--
     StreetTalkDirectoryAssistanceServer(Vec<Ipv4Addr>),
+    // Requested IP Address
+    //
+    // This option is used in a client request (DHCPDISCOVER) to allow the
+    // client to request that a particular IP address be assigned.
+    //
+    // The code for this option is 50, and its length is 4.
+    //
+    //  Code   Len          Address
+    // +-----+-----+-----+-----+-----+-----+
+    // |  50 |  4  |  a1 |  a2 |  a3 |  a4 |
+    // +-----+-----+-----+-----+-----+-----+
+    RequestedIpAddress(Ipv4Addr),
+    // IP Address Lease Time
+    //
+    // This option is used in a client request (DHCPDISCOVER or DHCPREQUEST)
+    // to allow the client to request a lease time for the IP address. In a
+    // server reply (DHCPOFFER), a DHCP server uses this option to specify
+    // the lease time it is willing to offer.
+    //
+    // The time is in units of seconds, and is specified as a 32-bit
+    // unsigned integer.
+    //
+    // The code for this option is 51, and its length is 4.
+    //
+    //  Code   Len         Lease Time
+    // +-----+-----+-----+-----+-----+-----+
+    // |  51 |  4  |  t1 |  t2 |  t3 |  t4 |
+    // +-----+-----+-----+-----+-----+-----+
+    IpAddressLeaseTime(u32),
 }
 
 impl DhcpOption {
@@ -1262,9 +1291,7 @@ impl DhcpOption {
                 result.push(if *tcp_keepalive_garbage { 1 } else { 0 });
                 result
             }
-            DhcpOption::NetworkInformationServiceDomain(
-                network_information_service_domain,
-            ) => {
+            DhcpOption::NetworkInformationServiceDomain(network_information_service_domain) => {
                 let mut result = Vec::new();
                 result.push(40);
                 result.push(network_information_service_domain.len() as u8);
@@ -1320,8 +1347,8 @@ impl DhcpOption {
                 let mut result = Vec::new();
                 result.push(45);
                 result.push((netbios_over_tcpip_datagram_distribution_server.len() * 4) as u8);
-                for netbios_over_tcpip_datagram_distribution_server
-                    in netbios_over_tcpip_datagram_distribution_server
+                for netbios_over_tcpip_datagram_distribution_server in
+                    netbios_over_tcpip_datagram_distribution_server
                 {
                     result.push(netbios_over_tcpip_datagram_distribution_server.octets()[0]);
                     result.push(netbios_over_tcpip_datagram_distribution_server.octets()[1]);
@@ -1388,7 +1415,8 @@ impl DhcpOption {
                 let mut result = Vec::new();
                 result.push(65);
                 result.push((network_information_service_plus_servers.len() * 4) as u8);
-                for network_information_service_plus_server in network_information_service_plus_servers
+                for network_information_service_plus_server in
+                    network_information_service_plus_servers
                 {
                     result.push(network_information_service_plus_server.octets()[0]);
                     result.push(network_information_service_plus_server.octets()[1]);
@@ -1409,7 +1437,9 @@ impl DhcpOption {
                 }
                 result
             }
-            DhcpOption::SimpleMailTransportProtocolServer(simple_mail_transport_protocol_server) => {
+            DhcpOption::SimpleMailTransportProtocolServer(
+                simple_mail_transport_protocol_server,
+            ) => {
                 let mut result = Vec::new();
                 result.push(69);
                 result.push((simple_mail_transport_protocol_server.len() * 4) as u8);
@@ -1439,7 +1469,8 @@ impl DhcpOption {
                 let mut result = Vec::new();
                 result.push(71);
                 result.push((network_news_transport_protocol_server.len() * 4) as u8);
-                for network_news_transport_protocol_server in network_news_transport_protocol_server {
+                for network_news_transport_protocol_server in network_news_transport_protocol_server
+                {
                     result.push(network_news_transport_protocol_server.octets()[0]);
                     result.push(network_news_transport_protocol_server.octets()[1]);
                     result.push(network_news_transport_protocol_server.octets()[2]);
@@ -1501,13 +1532,34 @@ impl DhcpOption {
                 let mut result = Vec::new();
                 result.push(76);
                 result.push((street_talk_directory_assistance_server.len() * 4) as u8);
-                for street_talk_directory_assistance_server in street_talk_directory_assistance_server
+                for street_talk_directory_assistance_server in
+                    street_talk_directory_assistance_server
                 {
                     result.push(street_talk_directory_assistance_server.octets()[0]);
                     result.push(street_talk_directory_assistance_server.octets()[1]);
                     result.push(street_talk_directory_assistance_server.octets()[2]);
                     result.push(street_talk_directory_assistance_server.octets()[3]);
                 }
+                result
+            }
+            DhcpOption::RequestedIpAddress(requested_ip_address) => {
+                let mut result = Vec::new();
+                result.push(50);
+                result.push(4);
+                result.push(requested_ip_address.octets()[0]);
+                result.push(requested_ip_address.octets()[1]);
+                result.push(requested_ip_address.octets()[2]);
+                result.push(requested_ip_address.octets()[3]);
+                result
+            }
+            DhcpOption::IpAddressLeaseTime(ip_address_lease_time) => {
+                let mut result = Vec::new();
+                result.push(51);
+                result.push(4);
+                result.push(((ip_address_lease_time >> 24) & 0xFF) as u8);
+                result.push(((ip_address_lease_time >> 16) & 0xFF) as u8);
+                result.push(((ip_address_lease_time >> 8) & 0xFF) as u8);
+                result.push((ip_address_lease_time & 0xFF) as u8);
                 result
             }
         }
@@ -2560,10 +2612,7 @@ impl DhcpOption {
                 // Retrieve the value.
                 let (value, data) = data.split_at(1);
 
-                Ok((
-                    DhcpOption::TrailerEncapsulation(value[0] != 0),
-                    data,
-                ))
+                Ok((DhcpOption::TrailerEncapsulation(value[0] != 0), data))
             }
             35 => {
                 // Check that the data has at least 4 bytes.
@@ -2585,9 +2634,11 @@ impl DhcpOption {
 
                 // Retrieve the value.
                 let (timeout, data) = data.split_at(4);
-                
+
                 Ok((
-                    DhcpOption::ArpCacheTimeout(u32::from_be_bytes([timeout[0], timeout[1], timeout[2], timeout[3]])),
+                    DhcpOption::ArpCacheTimeout(u32::from_be_bytes([
+                        timeout[0], timeout[1], timeout[2], timeout[3],
+                    ])),
                     data,
                 ))
             }
@@ -2612,10 +2663,7 @@ impl DhcpOption {
                 // Retrieve the value.
                 let (value, data) = data.split_at(1);
 
-                Ok((
-                    DhcpOption::EthernetEncapsulation(value[0] != 0),
-                    data,
-                ))
+                Ok((DhcpOption::EthernetEncapsulation(value[0] != 0), data))
             }
             37 => {
                 // Check that the data has at least 1 bytes.
@@ -2638,10 +2686,7 @@ impl DhcpOption {
                 // Retrieve the value.
                 let (ttl, data) = data.split_at(1);
 
-                Ok((
-                    DhcpOption::TcpDefaultTtl(ttl[0]),
-                    data,
-                ))
+                Ok((DhcpOption::TcpDefaultTtl(ttl[0]), data))
             }
             38 => {
                 // Check that the data has at least 4 bytes.
@@ -2665,7 +2710,12 @@ impl DhcpOption {
                 let (interval, data) = data.split_at(4);
 
                 Ok((
-                    DhcpOption::TcpKeepaliveInterval(u32::from_be_bytes([interval[0], interval[1], interval[2], interval[3]])),
+                    DhcpOption::TcpKeepaliveInterval(u32::from_be_bytes([
+                        interval[0],
+                        interval[1],
+                        interval[2],
+                        interval[3],
+                    ])),
                     data,
                 ))
             }
@@ -2690,10 +2740,7 @@ impl DhcpOption {
                 // Retrieve the value.
                 let (garbage, data) = data.split_at(1);
 
-                Ok((
-                    DhcpOption::TcpKeepaliveGarbage(garbage[0] != 0),
-                    data,
-                ))
+                Ok((DhcpOption::TcpKeepaliveGarbage(garbage[0] != 0), data))
             }
             40 => {
                 // Check that the data has at least 1 bytes.
@@ -2720,12 +2767,13 @@ impl DhcpOption {
                     ));
                 }
 
-
                 // Retrieve the value.
                 let (domain, data) = data.split_at(len as usize);
 
                 Ok((
-                    DhcpOption::NetworkInformationServiceDomain(String::from_utf8_lossy(domain).to_string()),
+                    DhcpOption::NetworkInformationServiceDomain(
+                        String::from_utf8_lossy(domain).to_string(),
+                    ),
                     data,
                 ))
             }
@@ -2733,31 +2781,34 @@ impl DhcpOption {
                 // Check that the data has at least 4 bytes.
                 if data.len() < 5 {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse network information service servers server address".to_string(),
+                        "Could not parse network information service servers server address"
+                            .to_string(),
                     ));
                 }
 
                 // Retrieve the length of the option.
-                let (len, data) = match data.split_first() {
-                    Some((len, data)) => (*len, data),
-                    None => {
-                        return Err(DhcpError::ParsingError(
-                            "Could not parse network information service servers server address".to_string(),
-                        ))
-                    }
-                };
+                let (len, data) =
+                    match data.split_first() {
+                        Some((len, data)) => (*len, data),
+                        None => return Err(DhcpError::ParsingError(
+                            "Could not parse network information service servers server address"
+                                .to_string(),
+                        )),
+                    };
 
                 // Verify that the length is possible.
                 if data.len() < len as usize {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse network information service servers server address".to_string(),
+                        "Could not parse network information service servers server address"
+                            .to_string(),
                     ));
                 }
 
                 // Verify that the length is a multiple of 4.
                 if len % 4 != 0 {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse network information service servers server address".to_string(),
+                        "Could not parse network information service servers server address"
+                            .to_string(),
                     ));
                 }
 
@@ -2765,13 +2816,10 @@ impl DhcpOption {
                 let (servers, data) = data.split_at(len as usize);
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
-                Ok((
-                    DhcpOption::NetworkInformationServers(servers),
-                    data,
-                ))
+                Ok((DhcpOption::NetworkInformationServers(servers), data))
             }
             42 => {
                 // Check that the data has at least 4 bytes.
@@ -2786,7 +2834,8 @@ impl DhcpOption {
                     Some((len, data)) => (*len, data),
                     None => {
                         return Err(DhcpError::ParsingError(
-                            "Could not parse network time protocol servers server address".to_string(),
+                            "Could not parse network time protocol servers server address"
+                                .to_string(),
                         ))
                     }
                 };
@@ -2809,13 +2858,10 @@ impl DhcpOption {
                 let (servers, data) = data.split_at(len as usize);
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
-                Ok((
-                    DhcpOption::NetworkTimeProtocolServers(servers),
-                    data,
-                ))
+                Ok((DhcpOption::NetworkTimeProtocolServers(servers), data))
             }
             43 => {
                 // Check that the data has at least 1 bytes.
@@ -2845,16 +2891,14 @@ impl DhcpOption {
                 // Retrieve the value.
                 let (info, data) = data.split_at(len as usize);
 
-                Ok((
-                    DhcpOption::VendorSpecificInformation(info.to_vec()),
-                    data,
-                ))
+                Ok((DhcpOption::VendorSpecificInformation(info.to_vec()), data))
             }
             44 => {
                 // Check that the data has at least 4 bytes.
                 if data.len() < 5 {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse netbios over tcp/ip name servers server address".to_string(),
+                        "Could not parse netbios over tcp/ip name servers server address"
+                            .to_string(),
                     ));
                 }
 
@@ -2863,7 +2907,8 @@ impl DhcpOption {
                     Some((len, data)) => (*len, data),
                     None => {
                         return Err(DhcpError::ParsingError(
-                            "Could not parse netbios over tcp/ip name servers server address".to_string(),
+                            "Could not parse netbios over tcp/ip name servers server address"
+                                .to_string(),
                         ))
                     }
                 };
@@ -2871,14 +2916,16 @@ impl DhcpOption {
                 // Verify that the length is possible.
                 if data.len() < len as usize {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse netbios over tcp/ip name servers server address".to_string(),
+                        "Could not parse netbios over tcp/ip name servers server address"
+                            .to_string(),
                     ));
                 }
 
                 // Verify that the length is a multiple of 4.
                 if len % 4 != 0 {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse netbios over tcp/ip name servers server address".to_string(),
+                        "Could not parse netbios over tcp/ip name servers server address"
+                            .to_string(),
                     ));
                 }
 
@@ -2886,43 +2933,42 @@ impl DhcpOption {
                 let (servers, data) = data.split_at(len as usize);
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
-                Ok((
-                    DhcpOption::NetBiosOverTcpIpNameServer(servers),
-                    data,
-                ))
+                Ok((DhcpOption::NetBiosOverTcpIpNameServer(servers), data))
             }
             45 => {
                 // Check that the data has at least 4 bytes.
                 if data.len() < 5 {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse netbios over tcp/ip datagram distribution server address".to_string(),
+                        "Could not parse netbios over tcp/ip datagram distribution server address"
+                            .to_string(),
                     ));
                 }
 
                 // Retrieve the length of the option.
                 let (len, data) = match data.split_first() {
                     Some((len, data)) => (*len, data),
-                    None => {
-                        return Err(DhcpError::ParsingError(
-                            "Could not parse netbios over tcp/ip datagram distribution server address".to_string(),
-                        ))
-                    }
+                    None => return Err(DhcpError::ParsingError(
+                        "Could not parse netbios over tcp/ip datagram distribution server address"
+                            .to_string(),
+                    )),
                 };
 
                 // Verify that the length is possible.
                 if data.len() < len as usize {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse netbios over tcp/ip datagram distribution server address".to_string(),
+                        "Could not parse netbios over tcp/ip datagram distribution server address"
+                            .to_string(),
                     ));
                 }
 
                 // Verify that the length is a multiple of 4.
                 if len % 4 != 0 {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse netbios over tcp/ip datagram distribution server address".to_string(),
+                        "Could not parse netbios over tcp/ip datagram distribution server address"
+                            .to_string(),
                     ));
                 }
 
@@ -2930,7 +2976,7 @@ impl DhcpOption {
                 let (servers, data) = data.split_at(len as usize);
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
                 Ok((
@@ -2970,10 +3016,7 @@ impl DhcpOption {
                     }
                 };
 
-                Ok((
-                    DhcpOption::NetBiosOverTcpIpNodeType(node_type),
-                    data,
-                ))
+                Ok((DhcpOption::NetBiosOverTcpIpNodeType(node_type), data))
             }
             47 => {
                 // Check that the data has at least 1 byte.
@@ -3003,10 +3046,7 @@ impl DhcpOption {
                 // Retrieve the value.
                 let (scope, data) = data.split_at(len as usize);
 
-                Ok((
-                    DhcpOption::NetBiosOverTcpIpScope(scope.to_vec()),
-                    data,
-                ))
+                Ok((DhcpOption::NetBiosOverTcpIpScope(scope.to_vec()), data))
             }
             48 => {
                 // Check that the data has at least 4 byte.
@@ -3037,13 +3077,10 @@ impl DhcpOption {
                 let (servers, data) = data.split_at(len as usize);
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
-                Ok((
-                    DhcpOption::XWindowSystemFontServer(servers),
-                    data,
-                ))
+                Ok((DhcpOption::XWindowSystemFontServer(servers), data))
             }
             49 => {
                 // Check that the data has at least 4 byte.
@@ -3074,13 +3111,10 @@ impl DhcpOption {
                 let (servers, data) = data.split_at(len as usize);
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
-                Ok((
-                    DhcpOption::XWindowSystemDisplayManager(servers),
-                    data,
-                ))
+                Ok((DhcpOption::XWindowSystemDisplayManager(servers), data))
             }
             64 => {
                 // Check that the data has at least 1 byte.
@@ -3104,7 +3138,9 @@ impl DhcpOption {
                 let (domain, data) = data.split_at(len as usize);
 
                 Ok((
-                    DhcpOption::NetworkInformationServicePlusDomain(String::from_utf8_lossy(domain).to_string()),
+                    DhcpOption::NetworkInformationServicePlusDomain(
+                        String::from_utf8_lossy(domain).to_string(),
+                    ),
                     data,
                 ))
             }
@@ -3144,7 +3180,7 @@ impl DhcpOption {
                 let (servers, data) = data.split_at(len as usize);
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
                 Ok((
@@ -3189,18 +3225,12 @@ impl DhcpOption {
                     let (servers, data) = data.split_at(len as usize);
                     let servers = servers
                         .chunks_exact(4)
-                        .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                        .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                         .collect::<Vec<Ipv4Addr>>();
 
-                    Ok((
-                        DhcpOption::MobileIpHomeAgent(servers),
-                        data,
-                    ))
+                    Ok((DhcpOption::MobileIpHomeAgent(servers), data))
                 } else {
-                    Ok((
-                        DhcpOption::MobileIpHomeAgent(Vec::new()),
-                        data,
-                    ))
+                    Ok((DhcpOption::MobileIpHomeAgent(Vec::new()), data))
                 }
             }
             69 => {
@@ -3216,7 +3246,8 @@ impl DhcpOption {
                     Some((len, data)) => (*len, data),
                     None => {
                         return Err(DhcpError::ParsingError(
-                            "Could not parse Simple Mail Transport Protocol Server servers".to_string(),
+                            "Could not parse Simple Mail Transport Protocol Server servers"
+                                .to_string(),
                         ))
                     }
                 };
@@ -3239,13 +3270,10 @@ impl DhcpOption {
                 let (servers, data) = data.split_at(len as usize);
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
-                Ok((
-                    DhcpOption::SimpleMailTransportProtocolServer(servers),
-                    data,
-                ))
+                Ok((DhcpOption::SimpleMailTransportProtocolServer(servers), data))
             }
             70 => {
                 // Check that the data has at least 4 bytes.
@@ -3284,19 +3312,17 @@ impl DhcpOption {
 
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
-                Ok((
-                    DhcpOption::PostOfficeProtocolServer(servers),
-                    data,
-                ))
+                Ok((DhcpOption::PostOfficeProtocolServer(servers), data))
             }
             71 => {
                 // Check that the data has at least 4 bytes.
                 if data.len() < 5 {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse Network News Transport Protocol Server servers".to_string(),
+                        "Could not parse Network News Transport Protocol Server servers"
+                            .to_string(),
                     ));
                 }
 
@@ -3305,7 +3331,8 @@ impl DhcpOption {
                     Some((len, data)) => (*len, data),
                     None => {
                         return Err(DhcpError::ParsingError(
-                            "Could not parse Network News Transport Protocol Server servers".to_string(),
+                            "Could not parse Network News Transport Protocol Server servers"
+                                .to_string(),
                         ))
                     }
                 };
@@ -3313,14 +3340,16 @@ impl DhcpOption {
                 // Verify that the length is possible.
                 if data.len() < len as usize {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse Network News Transport Protocol Server servers".to_string(),
+                        "Could not parse Network News Transport Protocol Server servers"
+                            .to_string(),
                     ));
                 }
 
                 // Verify that the length is a multiple of 4.
                 if len % 4 != 0 {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse Network News Transport Protocol Server servers".to_string(),
+                        "Could not parse Network News Transport Protocol Server servers"
+                            .to_string(),
                     ));
                 }
 
@@ -3329,7 +3358,7 @@ impl DhcpOption {
 
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
                 Ok((
@@ -3374,13 +3403,10 @@ impl DhcpOption {
 
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
-                Ok((
-                    DhcpOption::DefaultWorldWideWebServer(servers),
-                    data,
-                ))
+                Ok((DhcpOption::DefaultWorldWideWebServer(servers), data))
             }
             73 => {
                 // Check that the data has at least 4 bytes.
@@ -3419,13 +3445,10 @@ impl DhcpOption {
 
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
-                Ok((
-                    DhcpOption::DefaultFingerServer(servers),
-                    data,
-                ))
+                Ok((DhcpOption::DefaultFingerServer(servers), data))
             }
             74 => {
                 // Check that the data has at least 4 bytes.
@@ -3440,7 +3463,8 @@ impl DhcpOption {
                     Some((len, data)) => (*len, data),
                     None => {
                         return Err(DhcpError::ParsingError(
-                            "Could not parse Default Internet Relay Chat Server servers".to_string(),
+                            "Could not parse Default Internet Relay Chat Server servers"
+                                .to_string(),
                         ))
                     }
                 };
@@ -3464,13 +3488,10 @@ impl DhcpOption {
 
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
-                Ok((
-                    DhcpOption::DefaultInternetRelayChatServer(servers),
-                    data,
-                ))
+                Ok((DhcpOption::DefaultInternetRelayChatServer(servers), data))
             }
             75 => {
                 // Check that the data has at least 4 bytes.
@@ -3509,19 +3530,17 @@ impl DhcpOption {
 
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
-                Ok((
-                    DhcpOption::StreetTalkServer(servers),
-                    data,
-                ))
+                Ok((DhcpOption::StreetTalkServer(servers), data))
             }
             76 => {
                 // Check that the data has at least 4 bytes.
                 if data.len() < 5 {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse StreetTalk Directory Assistance Server servers".to_string(),
+                        "Could not parse StreetTalk Directory Assistance Server servers"
+                            .to_string(),
                     ));
                 }
 
@@ -3530,7 +3549,8 @@ impl DhcpOption {
                     Some((len, data)) => (*len, data),
                     None => {
                         return Err(DhcpError::ParsingError(
-                            "Could not parse StreetTalk Directory Assistance Server servers".to_string(),
+                            "Could not parse StreetTalk Directory Assistance Server servers"
+                                .to_string(),
                         ))
                     }
                 };
@@ -3538,14 +3558,16 @@ impl DhcpOption {
                 // Verify that the length is possible.
                 if data.len() < len as usize {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse StreetTalk Directory Assistance Server servers".to_string(),
+                        "Could not parse StreetTalk Directory Assistance Server servers"
+                            .to_string(),
                     ));
                 }
 
                 // Verify that the length is a multiple of 4.
                 if len % 4 != 0 {
                     return Err(DhcpError::ParsingError(
-                        "Could not parse StreetTalk Directory Assistance Server servers".to_string(),
+                        "Could not parse StreetTalk Directory Assistance Server servers"
+                            .to_string(),
                     ));
                 }
 
@@ -3554,13 +3576,77 @@ impl DhcpOption {
 
                 let servers = servers
                     .chunks_exact(4)
-                    .map(|server| { Ipv4Addr::new(server[0], server[1], server[2], server[3]) })
+                    .map(|server| Ipv4Addr::new(server[0], server[1], server[2], server[3]))
                     .collect::<Vec<Ipv4Addr>>();
 
                 Ok((
                     DhcpOption::StreetTalkDirectoryAssistanceServer(servers),
                     data,
                 ))
+            }
+            50 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Requested IP Address".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse Requested IP Address".to_string(),
+                        ))
+                    }
+                };
+
+                // Check that the length is 4.
+                if len != 4 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse Requested IP Address".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (addr, data) = data.split_at(4);
+
+                let addr = Ipv4Addr::new(addr[0], addr[1], addr[2], addr[3]);
+
+                Ok((DhcpOption::RequestedIpAddress(addr), data))
+            }
+            51 => {
+                // Check that the data has at least 4 bytes.
+                if data.len() < 5 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse IP Address Lease Time".to_string(),
+                    ));
+                }
+
+                // Retrieve the length of the option.
+                let (len, data) = match data.split_first() {
+                    Some((len, data)) => (*len, data),
+                    None => {
+                        return Err(DhcpError::ParsingError(
+                            "Could not parse IP Address Lease Time".to_string(),
+                        ))
+                    }
+                };
+
+                // Check that the length is 4.
+                if len != 4 {
+                    return Err(DhcpError::ParsingError(
+                        "Could not parse IP Address Lease Time".to_string(),
+                    ));
+                }
+
+                // Retrieve the value.
+                let (time, data) = data.split_at(4);
+
+                let time = u32::from_be_bytes([time[0], time[1], time[2], time[3]]);
+
+                Ok((DhcpOption::IpAddressLeaseTime(time), data))
             }
             _ => Err(DhcpError::ParsingError(format!(
                 "Unknown option code: {}",
